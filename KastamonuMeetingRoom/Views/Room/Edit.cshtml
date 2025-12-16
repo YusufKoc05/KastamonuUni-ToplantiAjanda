@@ -1,0 +1,21 @@
+﻿
+@model KastamonuMeetingRoom.Models.Room
+
+
+<h2>Odayı Düzenle</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="RoomId" />
+
+    <label>Oda Adı</label>
+    <input asp-for="Name" class="form-control" />
+
+    <label>Kapasite</label>
+    <input asp-for="Capacity" class="form-control" />
+
+    <label>Lokasyon</label>
+    <input asp-for="Location" class="form-control" />
+
+   
+    <button class="btn btn-primary mt-3">Güncelle</button>
+</form>

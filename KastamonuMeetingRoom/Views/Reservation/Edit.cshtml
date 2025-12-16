@@ -1,0 +1,26 @@
+﻿@model KastamonuMeetingRoom.Models.Reservation
+
+<h2>Rezervasyonu Düzenle</h2>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ReservationId" />
+
+    <label>Oda</label>
+    <select asp-for="RoomId" class="form-control"
+            asp-items="@(new SelectList(ViewBag.Rooms, "RoomId", "Name"))"></select>
+
+    <label>Başlık</label>
+    <input asp-for="Title" class="form-control" />
+
+    <label>Açıklama</label>
+    <textarea asp-for="Description" class="form-control"></textarea>
+
+    <label>Başlangıç</label>
+    <input asp-for="StartTime" type="datetime-local" class="form-control" />
+
+    <label>Bitiş</label>
+    <input asp-for="EndTime" type="datetime-local" class="form-control" />
+
+    <button class="btn btn-primary mt-3">Güncelle</button>
+</form>

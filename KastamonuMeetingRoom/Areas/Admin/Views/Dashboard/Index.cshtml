@@ -1,0 +1,211 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Admin";
+}
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Yönetim Paneli";
+}
+
+<h2 class="fw-bold mb-4">
+    <i class="bi bi-speedometer2" style="color: var(--primary); margin-right:8px;"></i>
+    Yönetim Paneli
+</h2>
+
+<!-- DASHBOARD STAT CARDS -->
+<div class="row g-4">
+
+    <!-- Bugünkü Rezervasyon -->
+    <div class="col-md-4">
+        <div class="dashboard-card text-center">
+            <div class="dashboard-icon">
+                <i class="bi bi-calendar-day"></i>
+            </div>
+            <div class="dashboard-value">@ViewBag.TodayCount</div>
+            <div class="dashboard-label">Bugünkü Rezervasyon</div>
+        </div>
+    </div>
+
+    <!-- Toplam Rezervasyon -->
+    <div class="col-md-4">
+        <div class="dashboard-card text-center">
+            <div class="dashboard-icon">
+                <i class="bi bi-clipboard-check"></i>
+            </div>
+            <div class="dashboard-value">@ViewBag.TotalCount</div>
+            <div class="dashboard-label">Toplam Rezervasyon</div>
+        </div>
+    </div>
+
+    <!-- Kullanıcı Sayısı -->
+    <div class="col-md-4">
+        <div class="dashboard-card text-center">
+            <div class="dashboard-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="dashboard-value">@ViewBag.UserCount</div>
+            <div class="dashboard-label">Kullanıcı Sayısı</div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- EN ÇOK KULLANILAN ODALAR -->
+<h3 class="mt-5 mb-3 fw-bold">
+    <i class="bi bi-trophy" style="color: var(--primary); margin-right:6px;"></i>
+    En Çok Kullanılan Odalar
+</h3>
+
+<div class="card p-3 shadow-sm" style="max-width: 600px;">
+    <ul class="list-group list-group-flush">
+        @foreach (var room in ViewBag.TopRooms)
+        {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>@room.RoomName</strong>
+                    <span class="badge bg-primary rounded-pill">@room.Count</span>
+                </li>
+        }
+    </ul>
+</div>
+
+
+<!-- 📈 Aylık Rezervasyon Grafiği -->
+<h3 class="mt-5 fw-bold">
+    <i class="bi bi-graph-up-arrow" style="color: var(--primary); margin-right:6px;"></i>
+    Aylık Rezervasyon Grafiği
+</h3>
+
+<div class="card p-4 shadow-sm">
+    <canvas id="reservationChart" height="110"></canvas>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const monthlyData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.MonthlyData));
+
+    const labels = monthlyData.map(x => x.Month + "/" + x.Year);
+    const values = monthlyData.map(x => x.Count);
+
+    new Chart(document.getElementById('reservationChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Aylık Rezervasyon',
+                data: values,
+                borderColor: "#A84545",
+                backgroundColor: "rgba(168, 69, 69, 0.25)",
+                tension: 0.3,
+                borderWidth: 3,
+                fill: true,
+                pointBorderColor: "#8B3838",
+                pointBackgroundColor: "#A84545",
+                pointRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { color: "#333" }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: { color: "#444" }
+                },
+                x: {
+                    ticks: { color: "#444" }
+                }
+            }
+        }
+    });
+</script>
+<!-- ⚡ HIZLI İŞLEMLER -->
+<h3 class="mt-5 fw-bold">
+    <i class="bi bi-lightning-charge" style="color: var(--primary); margin-right:6px;"></i>
+    Hızlı İşlemler
+</h3>
+
+<div class="row g-4">
+
+    <div class="col-md-3">
+        <a asp-area="Admin" asp-controller="Rooms" asp-action="Create"
+           class="dashboard-card text-center text-decoration-none d-block">
+            <div class="dashboard-icon">
+                <i class="bi bi-door-open-fill"></i>
+            </div>
+            <div class="dashboard-label fw-semibold">Yeni Oda Ekle</div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a asp-area="Admin" asp-controller="Reservation" asp-action="Index"
+           class="dashboard-card text-center text-decoration-none d-block">
+            <div class="dashboard-icon">
+                <i class="bi bi-calendar-check-fill"></i>
+            </div>
+            <div class="dashboard-label fw-semibold">Rezervasyonlar</div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a asp-area="Admin" asp-controller="Users" asp-action="Index"
+           class="dashboard-card text-center text-decoration-none d-block">
+            <div class="dashboard-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="dashboard-label fw-semibold">Kullanıcılar</div>
+        </a>
+    </div>
+
+    <div class="col-md-3">
+        <a asp-controller="Home" asp-action="Index"
+           class="dashboard-card text-center text-decoration-none d-block">
+            <div class="dashboard-icon">
+                <i class="bi bi-house-door-fill"></i>
+            </div>
+            <div class="dashboard-label fw-semibold">Siteye Git</div>
+        </a>
+    </div>
+
+</div>
+<!-- ℹ️ SİSTEM DURUMU -->
+<h3 class="mt-5 fw-bold">
+    <i class="bi bi-info-circle" style="color: var(--primary); margin-right:6px;"></i>
+    Sistem Durumu
+</h3>
+
+<div class="card p-4 shadow-sm">
+    <div class="row">
+
+        <div class="col-md-4">
+            <strong>🕒 Son Güncelleme</strong><br />
+            @DateTime.Now.ToString("dd.MM.yyyy HH:mm")
+        </div>
+
+        <div class="col-md-4">
+            <strong>🧑‍💼 Aktif Admin</strong><br />
+            @User.Identity?.Name
+        </div>
+
+        <div class="col-md-4">
+            <strong>⚙️ Sistem Durumu</strong><br />
+            <span class="badge bg-success">Çalışıyor</span>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+

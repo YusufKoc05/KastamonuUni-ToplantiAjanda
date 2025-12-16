@@ -1,0 +1,39 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Admin";
+}
+@model KastamonuMeetingRoom.Models.Reservation
+
+<h2 class="fw-bold mb-4 text-danger">🗑 Rezervasyon Sil</h2>
+
+<div class="card shadow p-4">
+
+    <h4>@Model.Title</h4>
+    <p class="text-muted">Bu rezervasyonu kalıcı olarak silmek istediğinize emin misiniz?</p>
+
+    <hr />
+
+    <p><strong>Oda:</strong> @Model.Room.Name</p>
+    <p><strong>Kullanıcı:</strong> @Model.User.FullName (@Model.User.Email)</p>
+    <p><strong>Başlangıç:</strong> @Model.StartTime</p>
+    <p><strong>Bitiş:</strong> @Model.EndTime</p>
+
+    @if (Model.IsCancelled)
+    {
+            <p><strong>Durum:</strong>
+                <span class="badge bg-secondary">İptal Edildi</span>
+            </p>
+    }
+
+    <form method="post" asp-action="Delete" asp-route-id="@Model.ReservationId">
+        @Html.AntiForgeryToken()
+        <button class="btn btn-danger">
+            <i class="bi bi-trash"></i> Kalıcı Olarak Sil
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Vazgeç
+        </a>
+    </form>
+
+</div>

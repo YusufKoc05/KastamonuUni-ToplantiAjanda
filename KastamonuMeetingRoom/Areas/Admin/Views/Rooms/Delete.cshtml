@@ -1,0 +1,22 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Admin";
+}
+@model KastamonuMeetingRoom.Models.Room
+
+<h2 class="fw-bold mb-3 text-danger">Odayı Sil</h2>
+
+<p>Bu odayı silmek istediğine emin misin?</p>
+
+<ul>
+    <li><strong>Oda:</strong> @Model.Name</li>
+    <li><strong>Kapasite:</strong> @Model.Capacity</li>
+</ul>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <button class="btn btn-danger">Evet, Sil</button>
+    <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+</form>
+
+

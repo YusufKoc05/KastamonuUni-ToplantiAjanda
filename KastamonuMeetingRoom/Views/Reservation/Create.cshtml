@@ -1,0 +1,97 @@
+﻿@model KastamonuMeetingRoom.Models.Reservation
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+
+        <div class="card shadow-lg border-0">
+          <div class="card-header reservation-header">
+    <h4 class="mb-0">
+        <i class="bi bi-calendar-plus"></i> Yeni Rezervasyon Oluştur
+    </h4>
+</div>
+
+
+            <div class="card-body">
+
+                <form method="post">
+                    @Html.AntiForgeryToken()
+
+                    <!-- Oda seçimi -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-door-open"></i> Oda Seç
+                        </label>
+                        <select asp-for="RoomId" class="form-select">
+                            @foreach (var room in ViewBag.Rooms)
+                            {
+                                    <option value="@room.RoomId">@room.Name (@room.Capacity kişi)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- 📌 SADECE ADMIN GÖRÜR: Kullanıcı seçimi -->
+                    @if (User.IsInRole("Admin"))
+                    {
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-people"></i> Kullanıcı Seç (Admin Yetkisi)
+                                </label>
+                                <select asp-for="UserId" class="form-select">
+                                @foreach (var u in ViewBag.Users)
+                                {
+                                            <option value="@u.Id">@u.FullName (@u.Email)</option>
+                                }
+                                </select>
+                            </div>
+                    }
+
+                    <!-- Başlık -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-pencil-square"></i> Başlık
+                        </label>
+                        <input asp-for="Title" class="form-control" placeholder="Toplantı, sunum, görüşme..." />
+                    </div>
+
+                    <!-- Açıklama -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-chat-left-dots"></i> Açıklama (İsteğe bağlı)
+                        </label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <!-- Tarih ve Saat -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-clock"></i> Başlangıç
+                            </label>
+                            <input asp-for="StartTime" type="datetime-local" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-clock-fill"></i> Bitiş
+                            </label>
+                            <input asp-for="EndTime" type="datetime-local" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Hata Mesajı -->
+                    <div class="text-danger">
+                        @Html.ValidationSummary()
+                    </div>
+
+                   <button class="btn btn-reserve w-100 mt-3">
+
+                        <i class="bi bi-check2-circle"></i> Rezervasyonu Oluştur
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>

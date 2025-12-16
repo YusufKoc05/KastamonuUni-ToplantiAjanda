@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - KastamonuMeetingRoom</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+<body style="background:#F5F5F7; font-family:'Poppins', sans-serif;">
+
+    <!-- 🌟 NAVBAR -->
+    <nav class="navbar navbar-expand-lg shadow-sm" style="background:#B22525;">
+        <div class="container-fluid">
+
+            <!-- LOGO -->
+            <a class="navbar-brand fw-bold text-white d-flex align-items-center"
+               asp-controller="Home" asp-action="Index">
+                <img src="~/images/LOGO.png"
+                     alt="Logo"
+                     style="height:38px; width:auto; margin-right:10px;" />
+                Kastamonu Meeting Room
+            </a>
+
+            <button class="navbar-toggler bg-light" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+
+                <!-- SOL MENÜ -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Home" asp-action="Index">Anasayfa</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Room" asp-action="Index">Odalar</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Reservation" asp-action="Index">Rezervasyonlarım</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white" asp-controller="Reservation" asp-action="Calendar">Takvim</a>
+                        </li>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white" data-bs-toggle="dropdown" href="#">
+                                    Admin Paneli
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                            Yönetim Paneli
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Rooms" asp-action="Index">
+                                            Oda Yönetimi
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                                            Kullanıcı Yönetimi
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                    }
+                </ul>
+
+                <!-- SAĞ MENÜ -->
+                <ul class="navbar-nav align-items-center">
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <li class="nav-item me-2">
+                            <span class="nav-link text-white fw-semibold">
+                                Merhaba @User.Identity.Name 👋
+                            </span>
+                        </li>
+
+                        <li class="nav-item">
+                            <form asp-area="Identity"
+                                  asp-page="/Account/Logout"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-light btn-sm px-3 fw-semibold">
+                                    Çıkış Yap
+                                </button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item me-2">
+                            <a class="btn btn-danger rounded-pill px-4 fw-semibold"
+                               asp-area="Identity"
+                               asp-page="/Account/Login">
+                                Giriş Yap
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="btn btn-danger rounded-pill px-4 fw-semibold"
+                               asp-area="Identity"
+                               asp-page="/Account/Register">
+                                Kayıt Ol
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="text-center py-3 mt-5" style="background:#1E1E1E; color:#CCCCCC;">
+        © 2025 KastamonuMeetingRoom — Tüm Hakları Saklıdır
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+

@@ -1,0 +1,35 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Admin";
+}
+@model KastamonuMeetingRoom.Models.Room
+
+<h2 class="fw-bold mb-3">Oda Düzenle</h2>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="RoomId" />
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Oda Adı</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Kapasite</label>
+        <input asp-for="Capacity" type="number" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Lokasyon</label>
+        <input asp-for="Location" class="form-control" />
+    </div>
+
+
+    <button type="submit" class="btn btn-danger">
+        Güncelle
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">Geri</a>
+</form>
+
+

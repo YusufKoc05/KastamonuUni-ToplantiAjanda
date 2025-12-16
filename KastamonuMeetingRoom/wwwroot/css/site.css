@@ -1,0 +1,418 @@
+/* ------------------------------------------------------ */
+/* GLOBAL THEME — Soft Kastamonu Üniversitesi Temasý      */
+/* ------------------------------------------------------ */
+
+:root {
+    --primary: #A84545; /* Softer Bordo */
+    --primary-hover: #8B3838;
+    --primary-light: #F7EDED;
+    --accent: #C95B5B; /* Premium kýrmýzý */
+    --dark: #1E1E1E;
+    --dark-soft: #2D2D2D;
+    --text-main: #222;
+    --text-soft: #555;
+    --bg-light: #FAFAFA;
+    --bg-white: #FFF;
+    --radius: 14px;
+    --shadow: 0 4px 14px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 20px rgba(0,0,0,0.13);
+}
+
+html {
+    font-size: 15px;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: var(--bg-light);
+    color: var(--text-main);
+    margin-bottom: 60px;
+    letter-spacing: 0.2px;
+}
+
+
+/* ------------------------------------------------------ */
+/* NAVBAR — Modern Soft Red Gradient                       */
+/* ------------------------------------------------------ */
+
+.navbar {
+    background: linear-gradient(90deg, #A84545, #8B3838);
+    padding: 0.9rem 1.4rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: white !important;
+}
+
+.navbar .nav-link {
+    color: #fff !important;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: 0.25s;
+}
+
+    .navbar .nav-link:hover {
+        background: rgba(255,255,255,0.18);
+        transform: translateY(-2px);
+    }
+
+
+/* ------------------------------------------------------ */
+/* BUTTONS — Premium Rounded Buttons                       */
+/* ------------------------------------------------------ */
+
+.btn {
+    border-radius: 20px !important;
+    padding: 8px 18px;
+    font-weight: 600;
+    transition: 0.25s;
+}
+
+/* Primary */
+.btn-primary {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+    .btn-primary:hover {
+        background: var(--primary-hover) !important;
+        transform: translateY(-2px);
+    }
+
+/* Outline primary */
+.btn-outline-primary {
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+    .btn-outline-primary:hover {
+        background: var(--primary) !important;
+        color: white !important;
+    }
+
+/* Premium Reserve Button */
+.btn-reserve {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+}
+
+    .btn-reserve:hover {
+        background: var(--primary-hover) !important;
+        transform: translateY(-2px);
+    }
+
+
+.btn-edit {
+    background: #4a4a4a !important;
+    border-color: #4a4a4a !important;
+    color: #fff !important;
+}
+
+    .btn-edit:hover {
+        background: #333 !important;
+    }
+
+
+/* Soft Green Button */
+.btn-soft-green {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+}
+
+    .btn-soft-green:hover {
+        background: var(--primary-hover) !important;
+        transform: translateY(-2px);
+    }
+
+
+/* ------------------------------------------------------ */
+/* CARD — Premium Soft Shadow                              */
+/* ------------------------------------------------------ */
+
+.card {
+    border-radius: var(--radius);
+    border: none;
+    background: var(--bg-white);
+    box-shadow: var(--shadow);
+    transition: 0.3s ease;
+}
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-hover);
+    }
+
+.card-header {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+}
+
+
+/* ------------------------------------------------------ */
+/* FORMS                                                   */
+/* ------------------------------------------------------ */
+
+.form-control, .form-select {
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    background: #fff;
+    border: 1px solid #DDD;
+    transition: 0.2s;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.15rem rgba(168, 69, 69, 0.3);
+    }
+
+
+/* ------------------------------------------------------ */
+/* ROOM CARDS — Premium UI                                 */
+/* ------------------------------------------------------ */
+
+.room-card {
+    background: #fff;
+    padding: 22px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border-top: 4px solid var(--primary-light);
+    text-align: center;
+    transition: 0.3s ease;
+}
+
+    .room-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+        border-top: 4px solid var(--primary);
+    }
+
+.room-icon i {
+    font-size: 42px;
+    color: var(--primary); /* ODA ÝKON RENGÝ DÜZELDÝ */
+    text-shadow: 0 3px 8px rgba(168, 69, 69, 0.25);
+}
+
+.room-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    color: var(--primary);
+
+
+
+/* ------------------------------------------------------ */
+/* FULLCALENDAR — Premium Red Theme                        */
+/* ------------------------------------------------------ */
+
+#calendar {
+    background: var(--bg-white);
+    padding: 25px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+/* Gün hover */
+.fc-daygrid-day:hover {
+    background: var(--primary-light);
+}
+
+/* Baþlýk */
+.fc-toolbar-title {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* Takvim butonlarý */
+.fc-button-primary {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+    .fc-button-primary:hover {
+        background: var(--primary-hover) !important;
+    }
+
+/* Etkinlik kutularý */
+.fc-event {
+    background: var(--primary) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 6px !important;
+    box-shadow: var(--shadow);
+}
+
+    .fc-event:hover {
+        transform: scale(1.04);
+        box-shadow: var(--shadow-hover);
+    }
+
+/* TAKVÝM ÝKON RENK DÜZELTME */
+.bi-clock, .bi-clock-fill {
+    color: var(--primary) !important;
+}
+
+
+/* ------------------------------------------------------ */
+/* FOOTER                                                  */
+/* ------------------------------------------------------ */
+
+.footer {
+    background: var(--dark);
+    color: #DDD;
+    padding: 20px;
+}
+
+    .footer a {
+        color: var(--accent);
+    }
+
+
+/* ------------------------------------------------------ */
+/* CAPTCHA                                                 */
+/* ------------------------------------------------------ */
+
+.captcha-box {
+    background: #fff;
+    padding: 14px;
+    border-radius: var(--radius);
+    font-size: 22px;
+    letter-spacing: 6px;
+    font-weight: 700;
+    box-shadow: var(--shadow);
+}
+/* ------------------------------------------------------ */
+/* DASHBOARD CARDS — Premium Admin UI                     */
+/* ------------------------------------------------------ */
+/* Dashboard Cards */
+.dashboard-card {
+    background: var(--bg-white);
+    padding: 25px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: 0.3s ease;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+    }
+
+.dashboard-icon {
+    font-size: 40px;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.dashboard-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--dark);
+}
+
+.dashboard-label {
+    font-size: 16px;
+    color: var(--text-soft);
+}
+
+
+}
+/* ------------------------------------------------------ */
+/* ADMIN SIDEBAR – Premium Dark Theme                     */
+/* ------------------------------------------------------ */
+
+.admin-sidebar {
+    background: var(--dark);
+    padding: 20px;
+    height: 100vh;
+    box-shadow: var(--shadow);
+}
+
+    .admin-sidebar a {
+        color: #fff;
+        font-weight: 500;
+        margin-bottom: 14px;
+        display: block;
+        transition: 0.2s;
+    }
+
+        .admin-sidebar a:hover {
+            color: var(--accent);
+            transform: translateX(4px);
+        }
+
+/* ------------------------------------------------------ */
+/* LOGIN / REGISTER BUTTONS – White Style                 */
+/* ------------------------------------------------------ */
+
+.btn-login-white,
+.btn-register-white {
+    background: #ffffff !important;
+    color: #000 !important;
+    border: 1px solid #ddd !important;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 6px 18px;
+    transition: 0.25s;
+}
+
+    .btn-login-white:hover,
+    .btn-register-white:hover {
+        background: #f2f2f2 !important;
+        color: #000 !important;
+        transform: translateY(-2px);
+    }
+
+button:focus, a:focus, .btn:focus {
+    outline: 3px solid #B22525 !important;
+    box-shadow: 0 0 5px #B22525 !important;
+}
+/* ------------------------------------------------------ */
+/* ROOM CARD BUTTON ALIGNMENT & SIZE FIX                  */
+/* ------------------------------------------------------ */
+
+/* Oda kartý içindeki tüm aksiyon butonlarý */
+.room-card .btn {
+    min-width: 120px; /* ?? Hepsi ayný geniþlik */
+    height: 38px; /* ?? Ayný yükseklik */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+/* Düzenle - Sil - Rezerve Et hizalama */
+.room-card .room-actions {
+    display: flex;
+    justify-content: center; /* ?? ORTALAMA */
+    gap: 12px; /* ?? Butonlar arasý boþluk */
+    flex-wrap: wrap;
+}
+
+/* Rezerve Et özel görünüm (ayný boyut + güçlü vurgu) */
+.room-card .btn-reserve,
+.room-card .btn-danger {
+    min-width: 140px;
+    font-weight: 600;
+}
+.dashboard-card {
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    }
+
+    .dashboard-card i {
+        font-size: 42px;
+    }
+
+

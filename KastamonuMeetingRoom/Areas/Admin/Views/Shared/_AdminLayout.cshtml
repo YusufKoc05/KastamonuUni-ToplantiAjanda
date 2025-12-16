@@ -1,0 +1,104 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] - Admin Panel</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <style>
+        body {
+            background: #f2f4f8;
+            font-family: Poppins, sans-serif;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            background: linear-gradient(180deg,#A84545,#8B3838);
+            padding-top: 25px;
+        }
+
+            .sidebar a {
+                color: #fff;
+                padding: 14px 22px;
+                display: flex;
+                gap: 12px;
+                text-decoration: none;
+            }
+
+                .sidebar a.active {
+                    background: rgba(255,255,255,.28);
+                }
+
+        .content {
+            margin-left: 260px;
+            padding: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <h4 class="text-white text-center mb-4">
+            <i class="bi bi-speedometer2"></i> Yönetim Paneli
+        </h4>
+
+        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+           class="@(currentController=="Dashboard"?"active":"")">
+            <i class="bi bi-graph-up"></i> Dashboard
+        </a>
+
+        <a asp-area="Admin" asp-controller="Users" asp-action="Index"
+           class="@(currentController=="Users"?"active":"")">
+            <i class="bi bi-people"></i> Kullanıcı Yönetimi
+        </a>
+
+        <a asp-area="Admin" asp-controller="Rooms" asp-action="Index"
+           class="@(currentController=="Rooms"?"active":"")">
+            <i class="bi bi-door-open"></i> Oda Yönetimi
+        </a>
+
+        <a asp-area="Admin" asp-controller="Reservation" asp-action="Index"
+           class="@(currentController=="Reservation"?"active":"")">
+            <i class="bi bi-calendar-check"></i> Rezervasyon Yönetimi
+        </a>
+
+        <hr class="text-white mx-3">
+
+        <!-- LOGOUT -->
+        <form asp-area="Identity"
+              asp-page="/Account/Logout"
+              method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-light btn-sm">
+                Çıkış Yap
+            </button>
+        </form>
+
+
+
+        <!-- 🔥 SİTEYE DÖN (DÜZELTİLDİ) -->
+        <a class="nav-link text-white mt-2"
+           asp-area=""
+           asp-controller="Home"
+           asp-action="Index">
+            <i class="bi bi-house-door me-2"></i> Siteye Dön
+        </a>
+    </div>
+
+    <div class="content">
+        @RenderBody()
+    </div>
+
+</body>
+</html>

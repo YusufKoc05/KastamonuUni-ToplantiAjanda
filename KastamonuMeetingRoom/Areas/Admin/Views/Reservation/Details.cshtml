@@ -1,0 +1,64 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Rezervasyon Detayı";
+}
+
+@model KastamonuMeetingRoom.Models.Reservation
+
+<h2 class="fw-bold mb-4">📄 Rezervasyon Detayı</h2>
+
+<div class="card shadow p-4">
+
+    <h4>@Model.Title</h4>
+    <p class="text-muted">Rezervasyon ID: @Model.ReservationId</p>
+
+    <hr />
+
+    <p><strong>Oda:</strong> @Model.Room.Name</p>
+    <p><strong>Kullanıcı:</strong> @Model.User.FullName (@Model.User.Email)</p>
+    <p><strong>Açıklama:</strong> @(Model.Description ?? "—")</p>
+
+    <p><strong>Başlangıç:</strong> @Model.StartTime</p>
+    <p><strong>Bitiş:</strong> @Model.EndTime</p>
+
+    <p>
+        <strong>Durum:</strong>
+        @if (Model.IsCancelled)
+        {
+            <span class="badge bg-secondary">İptal Edildi</span>
+        }
+        else
+        {
+            <span class="badge bg-success">Aktif</span>
+        }
+    </p>
+
+    <div class="d-flex gap-2 mt-4">
+
+        <!-- GÜNCELLE → SİYAH / BEYAZ -->
+        <a asp-area=""
+           asp-controller="Reservation"
+           asp-action="Create"
+           class="btn btn-dark text-white">
+            Güncelle
+        </a>
+
+        <!-- SİL -->
+        <form asp-area="Admin"
+              asp-controller="Reservation"
+              asp-action="Delete"
+              method="post">
+            <input type="hidden" name="id" value="@Model.ReservationId" />
+            @Html.AntiForgeryToken()
+            <button class="btn btn-danger">
+                Sil
+            </button>
+        </form>
+
+        <!-- GERİ -->
+        <a asp-action="Index" class="btn btn-secondary">
+            Geri Dön
+        </a>
+
+    </div>
+</div>

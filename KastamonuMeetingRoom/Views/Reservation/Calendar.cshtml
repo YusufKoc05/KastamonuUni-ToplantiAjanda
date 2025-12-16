@@ -1,0 +1,158 @@
+﻿@model List<KastamonuMeetingRoom.Models.Reservation>
+
+@{
+    ViewData["Title"] = "Takvim";
+}
+
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet" />
+
+<h2 class="fw-bold mb-4">
+    <i class="bi bi-calendar-week text-danger"></i>
+    Takvim Görünümü
+</h2>
+
+<div class="card shadow-sm p-4">
+    <div id="calendar"></div>
+</div>
+
+@section Scripts {
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/tr.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'tr',
+                initialView: 'dayGridMonth',
+                height: 'auto',
+
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+
+                buttonText: {
+                    today: 'Bugün',
+                    month: 'Ay',
+                    week: 'Hafta',
+                    day: 'Gün',
+                    list: 'Liste'
+                },
+
+                events: '/Reservation/GetEvents',
+
+                eventDisplay: 'block',
+
+                /* 🔥 TAKVİM ÜZERİNDE SADECE BAŞLIK (SAAT YOK) */
+                eventContent: function (arg) {
+                    return {
+                        html: `<span class="fc-title-only">${arg.event.title}</span>`
+                    };
+                },  // ✅ BURADAKİ VİRGÜL ÇOK ÖNEMLİ
+
+                eventDidMount: function (info) {
+
+                    /* 🔴 İPTAL EDİLENLER */
+                    if (info.event.extendedProps.isCancelled) {
+                        info.el.style.opacity = "0.45";
+                        info.el.style.textDecoration = "line-through";
+
+                        // Liste görünümü için
+                        if (info.view.type.startsWith("list")) {
+                            info.el.style.backgroundColor = "#f1f1f1";
+                            info.el.style.borderLeft = "5px solid #999";
+                        }
+                    }
+
+                    /* 🧾 TOOLTIP (TÜM DETAYLAR HOVER'DA) */
+                    new bootstrap.Tooltip(info.el, {
+                        html: true,
+                        placement: 'top',
+                        title: `
+                            <b>${info.event.title}</b><br/>
+                            👤 Kullanıcı: ${info.event.extendedProps.user ?? '-'}<br/>
+                            🏢 Oda: ${info.event.extendedProps.room}<br/>
+                            🕒 Başlangıç: ${info.event.start.toLocaleString()}<br/>
+                            🕒 Bitiş: ${info.event.end.toLocaleString()}<br/>
+                            📝 ${info.event.extendedProps.description}
+                        `
+                    });
+                },
+
+                eventClick: function (info) {
+                    info.jsEvent.preventDefault();
+                    window.location.href = '/Reservation/Details/' + info.event.id;
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
+
+}
+
+<style>
+    #calendar {
+        background: #fff;
+        padding: 20px;
+        border-radius: 14px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    /* 🎯 TAKVİM EVENT TASARIMI */
+    .fc-event {
+        border-radius: 10px !important;
+        padding: 6px 10px !important;
+        font-weight: 500;
+        background: linear-gradient(135deg, #b22525, #d14b4b);
+        border: none !important;
+    }
+
+    .fc-title-only {
+        color: #fff;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* 🔹 AY / HAFTA / GÜN görünümündeki event (sunum) */
+    .fc-event {
+        background: #6c757d !important; /* gri arka plan */
+        border: none !important;
+    }
+    /* LİSTE GÖRÜNÜMÜ EVENT SATIRI */
+    .fc-list-event {
+        background-color: #fde2e2 !important; /* çok açık kırmızı */
+    }
+
+    .fc-list-event-title {
+        color: #555 !important; /* koyu gri yazı */
+        font-weight: 600;
+    }
+
+    .fc-list-event-time {
+        color: #777 !important;
+    }
+
+
+   
+
+
+    /* Nokta ikon (●) */
+    .fc-list-event-dot {
+        border-color: #6b7280 !important;
+    }
+
+
+</style>
+
+
+
+
+

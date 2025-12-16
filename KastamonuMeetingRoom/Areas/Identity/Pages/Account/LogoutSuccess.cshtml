@@ -1,0 +1,21 @@
+﻿@page
+@{
+    ViewData["Title"] = "Çıkış Yapıldı";
+}
+
+<div class="text-center mt-5">
+    <div class="card shadow-lg p-5 mx-auto" style="max-width:520px;">
+        <i class="bi bi-check-circle-fill text-success display-4 mb-3"></i>
+
+        <h3 class="fw-bold mb-2">Çıkış Yapıldı</h3>
+        <p class="text-muted mb-4">
+            Oturumunuz başarıyla sonlandırıldı.
+        </p>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-danger rounded-pill px-4 fw-semibold">
+            Anasayfaya Dön
+        </a>
+    </div>
+</div>

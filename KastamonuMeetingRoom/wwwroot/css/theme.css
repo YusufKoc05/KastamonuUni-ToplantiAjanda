@@ -1,0 +1,86 @@
+﻿/* ================================
+   KASTAMONU ÜNİVERSİTESİ KURUMSAL TEMA
+   Kırmızı (#8B0000), Siyah, Beyaz
+================================ */
+
+/* FONT AYARI */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #F8F8F8;
+}
+
+/* RENK DEĞİŞKENLERİ */
+:root {
+    --ku-red: #8B0000;
+    --ku-red-hover: #A30000;
+    --ku-black: #000000;
+    --ku-gray: #333333;
+    --ku-light-gray: #F5F5F5;
+    --ku-border: #E0E0E0;
+}
+
+/* NAVBAR */
+.navbar {
+    background-color: var(--ku-red) !important;
+}
+
+    .navbar .nav-link, .navbar-brand {
+        color: white !important;
+    }
+
+        .navbar .nav-link:hover {
+            color: #F2F2F2 !important;
+        }
+
+/* FOOTER */
+footer {
+    background-color: var(--ku-black);
+    color: #FFFFFFCC;
+    padding: 20px 0;
+    text-align: center;
+}
+
+/* BUTONLAR */
+.btn-primary {
+    background-color: var(--ku-red);
+    border-color: var(--ku-red);
+}
+
+    .btn-primary:hover {
+        background-color: var(--ku-red-hover);
+    }
+
+/* CARD TASARIMI */
+.card {
+    border: 1px solid var(--ku-border);
+    box-shadow: 0px 3px 10px rgba(0,0,0,0.07);
+}
+
+/* ROOM CARD */
+.room-card-title {
+    color: var(--ku-red);
+}
+
+/* FULLCALENDAR RENK */
+.fc-event {
+    background-color: var(--ku-red) !important;
+    border-color: var(--ku-red) !important;
+}
+/* ADMIN SIDEBAR */
+.admin-sidebar {
+    background-color: #000;
+    color: white;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+    .admin-sidebar a {
+        color: #fff;
+        display: block;
+        padding: 10px 0;
+    }
+
+        .admin-sidebar a.active {
+            background-color: var(--ku-red);
+        }
+
