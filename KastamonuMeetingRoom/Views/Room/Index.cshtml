@@ -1,85 +1,228 @@
-﻿
 @model List<KastamonuMeetingRoom.Models.Room>
 
-<h2 class="mb-4 fw-bold">
-    <i class="bi bi-building-check" style="color: var(--primary); margin-right: 8px;"></i>
-    Odalar
-</h2>
+@{
+    ViewData["Title"] = "Toplantı Salonları - Kastamonu Üniversitesi";
+    var departments = ViewBag.Departments as List<string> ?? new List<string>();
+    string selectedDept = ViewBag.SelectedDepartment as string ?? "";
+    bool selectedVideoConf = ViewBag.SelectedVideoConf ?? false;
+}
 
-<div class="row g-4">
+<div class="container-fluid px-0">
+    <!-- Üst Başlık & Filtreleme Çubuğu -->
+    <div class="card shadow-sm border-0 rounded-4 p-4 mb-4 bg-white">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="fw-bold mb-1 text-dark d-flex align-items-center">
+                    <i class="bi bi-door-open-fill text-danger me-2"></i>
+                    Üniversite Toplantı Salonları
+                </h2>
+                <p class="text-secondary small mb-0">
+                    Fakülte, enstitü ve idari birimlerimizin anlık müsaitlik durumları ve teknik donanımları
+                </p>
+            </div>
 
-    @foreach (var room in Model)
-    {
-            <div class="col-md-4">
-                <div class="room-card h-100">
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-controller="Reservation" asp-action="Calendar" class="btn btn-outline-danger rounded-pill px-3 shadow-sm">
+                    <i class="bi bi-calendar3 me-1"></i> Tüm Ajandayı Gör
+                </a>
 
-                    <!-- Premium Icon -->
-                    <div class="room-icon text-center mb-3">
-                        <i class="bi bi-door-open-fill"></i>
-                    </div>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Create" class="btn btn-danger rounded-pill px-4 shadow-sm fw-semibold">
+                        <i class="bi bi-plus-circle me-1"></i> Yeni Salon Ekle
+                    </a>
+                }
+            </div>
+        </div>
 
-                    <!-- Room Info -->
-                    <div class="text-center">
-                        <h4 class="room-title mb-3">@room.Name</h4>
-
-                        <div class="d-flex justify-content-center align-items-center mb-2">
-                            <i class="bi bi-people-fill text-secondary me-2"></i>
-                            <span class="fw-semibold">Kapasite: @room.Capacity</span>
-                        </div>
-
-                        <div class="d-flex justify-content-center align-items-center mb-3">
-                            <i class="bi bi-geo-alt-fill" style="color: var(--accent); margin-right: 6px;"></i>
-                            <span class="fw-semibold">Lokasyon: @room.Location</span>
-                        </div>
-                    </div>
-
-                    <hr />
-
-                    <!-- Buttons -->
-                <div class="room-actions px-2">
-
-
-                    @if (User.IsInRole("Admin"))
-                    {
-                                <!-- Admin Buttons -->
-                                <a href="/Room/Edit/@room.RoomId" class="btn btn-edit rounded-pill btn-sm">
-                                    <i class="bi bi-pencil-square me-1"></i> Düzenle
-                                </a>
-
-                                <a href="/Room/Delete/@room.RoomId" class="btn btn-outline-danger rounded-pill btn-sm">
-                                    <i class="bi bi-trash-fill me-1"></i> Sil
-                                </a>
-                    }
-
-                        <!-- Kullanıcı + Admin Ortak -->
-                    <div class="d-flex justify-content-center mt-3">
-                        <a class="btn btn-danger btn-sm" asp-controller="Reservation" asp-action="Create" asp-route-roomId="@room.RoomId">
-                            <i class="bi bi-plus-circle"></i> Rezerve Et
-                        </a>
-                    </div>
-
-
-
-                    </div>
-
+        <!-- FİLTRE PANELİ (Fakülte & Video Konferans) -->
+        <hr class="my-3 opacity-10" />
+        <form method="get" class="row g-3 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-danger"><i class="bi bi-building"></i></span>
+                    <select name="department" class="form-select border-start-0" onchange="this.form.submit()">
+                        <option value="">-- Tüm Fakülte ve Birimler --</option>
+                        @foreach (var dept in departments)
+                        {
+                            if (selectedDept == dept)
+                            {
+                                <option value="@dept" selected>@dept</option>
+                            }
+                            else
+                            {
+                                <option value="@dept">@dept</option>
+                            }
+                        }
+                    </select>
                 </div>
             </div>
-    }
 
+            <div class="col-md-4">
+                <div class="form-check form-switch pt-1">
+                    <input class="form-check-input" type="checkbox" name="videoConference" value="true" id="vcCheck" @(selectedVideoConf ? "checked" : "") onchange="this.form.submit()">
+                    <label class="form-check-label small fw-semibold text-dark" for="vcCheck">
+                        <i class="bi bi-camera-video text-danger me-1"></i> Yalnızca Video Konferans (Zoom vb.) Olanlar
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-md-3 text-md-end">
+                @if (!string.IsNullOrEmpty(selectedDept) || selectedVideoConf)
+                {
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill">
+                        <i class="bi bi-x-circle me-1"></i> Filtreleri Sıfırla
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- SALON KARTLARI -->
+    <div class="row g-4">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="col-12 text-center py-5 text-muted bg-white rounded-4 shadow-sm">
+                <i class="bi bi-door-closed display-4 d-block mb-3 text-secondary"></i>
+                Seçilen kriterlere uygun toplantı salonu bulunamadı.
+            </div>
+        }
+        else
+        {
+            foreach (var room in Model)
+            {
+                var qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + System.Net.WebUtility.UrlEncode("https://kastamonu.edu.tr/Reservation/Calendar?roomId=" + room.RoomId);
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-sm border-0 rounded-4 h-100 p-4 bg-white d-flex flex-column hover-card position-relative overflow-hidden">
+                        
+                        <!-- CANLI MÜSAİTLİK GÖSTERGESİ -->
+                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                            @if (room.IsCurrentlyOccupied)
+                            {
+                                <div class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 d-flex align-items-center">
+                                    <span class="live-pulse-dot pulse-red"></span>
+                                    <span>Toplantı Sürüyor (~@room.RemainingMinutes dk)</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 d-flex align-items-center">
+                                    <span class="live-pulse-dot pulse-green"></span>
+                                    <span>Şu An Müsait</span>
+                                </div>
+                            }
+
+                            <span class="badge bg-light text-dark rounded-pill px-3 py-2 border fw-semibold">
+                                <i class="bi bi-people-fill text-danger me-1"></i> @room.Capacity Kişilik
+                            </span>
+                        </div>
+
+                        <!-- Salon Başlığı & Konumu -->
+                        <h4 class="fw-bold text-dark mb-1">@room.Name</h4>
+                        <div class="text-secondary small mb-2">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i> @(string.IsNullOrEmpty(room.Location) ? "Kampüs" : room.Location)
+                            @if (!string.IsNullOrEmpty(room.Department))
+                            {
+                                <span class="badge bg-light text-secondary border ms-1">@room.Department</span>
+                            }
+                        </div>
+
+                        <!-- Devam Eden veya Sıradaki Toplantı Bilgisi -->
+                        <div class="p-2 rounded-3 bg-light border small mb-3">
+                            @if (room.IsCurrentlyOccupied)
+                            {
+                                <div><strong class="text-danger">Şu Anda:</strong> @room.CurrentMeetingTitle</div>
+                                <div class="text-muted" style="font-size:0.75rem;"><i class="bi bi-person me-1"></i> @room.CurrentMeetingUser</div>
+                            }
+                            else if (room.NextMeeting != null)
+                            {
+                                <div><strong class="text-success">Sırada:</strong> @room.NextMeeting.Title</div>
+                                <div class="text-muted" style="font-size:0.75rem;">Saat: @room.NextMeeting.StartTime.ToString("HH:mm") — @room.NextMeeting.EndTime.ToString("HH:mm")</div>
+                            }
+                            else
+                            {
+                                <div class="text-muted"><i class="bi bi-check2 text-success me-1"></i> Bugün için kalan toplantı yok</div>
+                            }
+                        </div>
+
+                        <!-- Donanım İkonları -->
+                        <div class="d-flex flex-wrap gap-1 mb-4">
+                            @if (room.HasProjector)
+                            {
+                                <span class="badge bg-light text-dark border small" title="4K Projeksiyon Cihazı"><i class="bi bi-projector text-danger me-1"></i> Projeksiyon</span>
+                            }
+                            @if (room.HasVideoConference)
+                            {
+                                <span class="badge bg-danger text-white small" title="Zoom / Hibrit Video Konferans"><i class="bi bi-camera-video me-1"></i> Video Konferans</span>
+                            }
+                            @if (room.HasSmartBoard)
+                            {
+                                <span class="badge bg-light text-dark border small" title="Akıllı Dokunmatik Tahta"><i class="bi bi-easel text-danger me-1"></i> Akıllı Tahta</span>
+                            }
+                            @if (room.HasSoundSystem)
+                            {
+                                <span class="badge bg-light text-dark border small" title="Telsiz Mikrofon & Ses Sistemi"><i class="bi bi-mic text-danger me-1"></i> Ses Sistemi</span>
+                            }
+                            @if (room.HasDisabledAccess)
+                            {
+                                <span class="badge bg-light text-dark border small" title="Engelli Erişimine Uygun"><i class="bi bi-universal-access text-danger me-1"></i> Engelli Erişimi</span>
+                            }
+                        </div>
+
+                        <!-- Butonlar -->
+                        <div class="mt-auto pt-3 border-top">
+                            <div class="d-flex gap-2 mb-2">
+                                <a asp-controller="Reservation" asp-action="Calendar" asp-route-roomId="@room.RoomId" class="btn btn-sm btn-outline-secondary rounded-pill flex-fill">
+                                    <i class="bi bi-calendar-event me-1"></i> Ajanda
+                                </a>
+
+                                <a asp-controller="Reservation" asp-action="Create" asp-route-roomId="@room.RoomId" class="btn btn-sm btn-danger rounded-pill flex-fill fw-semibold">
+                                    <i class="bi bi-plus-circle me-1"></i> Rezerve Et
+                                </a>
+                            </div>
+
+                            <!-- Kapı Ekranı & QR Butonları -->
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a asp-action="DoorDisplay" asp-route-id="@room.RoomId" target="_blank" class="text-decoration-none small text-danger fw-semibold" title="Tabletler için tam ekran kapı bilgi ekranı">
+                                    <i class="bi bi-tablet me-1"></i> Kapı Ekranı (Kiosk)
+                                </a>
+
+                                <button type="button" class="btn btn-sm btn-light border rounded-pill py-0 px-2 small text-muted" data-bs-toggle="modal" data-bs-target="#qrModal-@room.RoomId">
+                                    <i class="bi bi-qr-code me-1"></i> QR
+                                </button>
+                            </div>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <div class="d-flex justify-content-end gap-1 mt-3 pt-2 border-top">
+                                    <a asp-action="Edit" asp-route-id="@room.RoomId" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                                        <i class="bi bi-pencil me-1"></i> Düzenle
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@room.RoomId" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="return confirm('Bu salonu ve ilişkili kayıtları silmek istediğinize emin misiniz?');">
+                                        <i class="bi bi-trash me-1"></i> Sil
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR KOD MODALI -->
+                <div class="modal fade" id="qrModal-@room.RoomId" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-sm">
+                        <div class="modal-content rounded-4 border-0 text-center p-4">
+                            <h5 class="fw-bold mb-1">@room.Name</h5>
+                            <small class="text-muted mb-3">Akıllı Kapı Giriş QR Kodu</small>
+                            <div class="p-3 bg-light rounded-4 border mb-3">
+                                <img src="@qrUrl" alt="QR Kod" class="img-fluid rounded-3" />
+                            </div>
+                            <p class="small text-secondary mb-3">Telefonunuzla taratarak bu salonun haftalık ajandasını doğrudan görüntüleyin.</p>
+                            <button type="button" class="btn btn-secondary rounded-pill btn-sm" data-bs-dismiss="modal">Kapat</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
 </div>
-
-<!-- Only Admin Can See New Room Button -->
-@if (User.IsInRole("Admin"))
-{
-        <div class="mt-4">
-            <a href="/Room/Create" class="btn btn-soft-green rounded-pill px-4 shadow-sm">
-                <i class="bi bi-plus-circle me-2" style="color:white;"></i> Yeni Oda Ekle
-            </a>
-        </div>
-}
-<style>
-    .btn-danger {
-        border-radius: 30px;
-    }
-</style>
-

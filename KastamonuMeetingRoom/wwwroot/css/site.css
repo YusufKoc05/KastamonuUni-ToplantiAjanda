@@ -1,418 +1,246 @@
-/* ------------------------------------------------------ */
-/* GLOBAL THEME ó Soft Kastamonu ‹niversitesi Temas˝      */
-/* ------------------------------------------------------ */
+Ôªø/* -------------------------------------------------------------------------- */
+/* üèõÔ∏è KASTAMONU √úNƒ∞VERSƒ∞TESƒ∞ KURUMSAL TEMASI (KIRMIZI - BEYAZ - Sƒ∞YAH)       */
+/* -------------------------------------------------------------------------- */
 
 :root {
-    --primary: #A84545; /* Softer Bordo */
-    --primary-hover: #8B3838;
-    --primary-light: #F7EDED;
-    --accent: #C95B5B; /* Premium k˝rm˝z˝ */
-    --dark: #1E1E1E;
-    --dark-soft: #2D2D2D;
-    --text-main: #222;
-    --text-soft: #555;
-    --bg-light: #FAFAFA;
-    --bg-white: #FFF;
-    --radius: 14px;
-    --shadow: 0 4px 14px rgba(0,0,0,0.08);
-    --shadow-hover: 0 8px 20px rgba(0,0,0,0.13);
+    --primary: #B22525;          /* Kastamonu √úniversitesi Kurumsal Kƒ±rmƒ±zƒ±sƒ± */
+    --primary-hover: #991B1B;    /* Koyu Kƒ±rmƒ±zƒ± Hover */
+    --primary-dark: #7F1D1D;     /* Derin Kƒ±rmƒ±zƒ± */
+    --primary-light: #FEF2F2;   /* A√ßƒ±k Kƒ±rmƒ±zƒ± Arka Plan */
+    --dark: #121212;             /* Asil Siyah */
+    --dark-soft: #1E1E1E;        /* Antrasit */
+    --text-main: #18181B;        /* Koyu Metin */
+    --text-soft: #52525B;        /* ƒ∞kincil Metin */
+    --bg-light: #F8FAFC;         /* A√ßƒ±k Gri / Beyaz Zemin */
+    --bg-white: #FFFFFF;         /* Bembeyaz */
+    --border-color: #E2E8F0;     /* ƒ∞nce Kenarlƒ±k */
+    --radius: 12px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+    --shadow-hover: 0 12px 28px rgba(178, 37, 37, 0.14);
+}
+
+/* üåì KOYU MOD (DARK MODE) DESTEƒûƒ∞ */
+[data-bs-theme="dark"] {
+    --bg-light: #0d0f12;
+    --bg-white: #16181d;
+    --text-main: #f4f4f5;
+    --text-soft: #a1a1aa;
+    --border-color: #27272a;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+}
+
+[data-bs-theme="dark"] body {
+    background-color: var(--bg-light) !important;
+    color: var(--text-main) !important;
+}
+
+[data-bs-theme="dark"] .card {
+    background-color: var(--bg-white) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+[data-bs-theme="dark"] .text-dark {
+    color: #f4f4f5 !important;
+}
+
+[data-bs-theme="dark"] .bg-light {
+    background-color: #1e2025 !important;
+}
+
+[data-bs-theme="dark"] .border {
+    border-color: var(--border-color) !important;
+}
+
+[data-bs-theme="dark"] .table {
+    color: #f4f4f5 !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-bs-theme="dark"] .modal-content {
+    background-color: #16181d !important;
+    color: #f4f4f5 !important;
 }
 
 html {
     font-size: 15px;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-    background: var(--bg-light);
+    background-color: var(--bg-light);
     color: var(--text-main);
-    margin-bottom: 60px;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.15px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* -------------------------------------------------------------------------- */
+/* NAVBAR                                                                     */
+/* -------------------------------------------------------------------------- */
 
-/* ------------------------------------------------------ */
-/* NAVBAR ó Modern Soft Red Gradient                       */
-/* ------------------------------------------------------ */
-
-.navbar {
-    background: linear-gradient(90deg, #A84545, #8B3838);
-    padding: 0.9rem 1.4rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+.navbar-ku {
+    background: linear-gradient(90deg, #111111 0%, #1A1A1A 60%, #8E1C1C 100%) !important;
+    border-bottom: 3px solid var(--primary);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
-.navbar-brand {
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: white !important;
-}
-
-.navbar .nav-link {
-    color: #fff !important;
+.navbar-ku .nav-link {
+    color: #F4F4F5 !important;
     font-weight: 500;
-    padding: 8px 14px;
-    border-radius: 8px;
-    transition: 0.25s;
+    transition: all 0.2s ease;
 }
 
-    .navbar .nav-link:hover {
-        background: rgba(255,255,255,0.18);
-        transform: translateY(-2px);
-    }
+.navbar-ku .nav-link:hover {
+    color: #FFFFFF !important;
+    background: rgba(178, 37, 37, 0.35);
+}
 
+/* -------------------------------------------------------------------------- */
+/* CANLI NABIZ G√ñSTERGESƒ∞ (PULSE STATUS BADGES)                               */
+/* -------------------------------------------------------------------------- */
 
-/* ------------------------------------------------------ */
-/* BUTTONS ó Premium Rounded Buttons                       */
-/* ------------------------------------------------------ */
+.live-pulse-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    animation: livePulse 1.8s infinite;
+}
+
+.pulse-green {
+    background: #22c55e;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+}
+
+.pulse-red {
+    background: #ef4444;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+}
+
+@keyframes livePulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+    70% { transform: scale(1.15); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* -------------------------------------------------------------------------- */
+/* BUTONLAR                                                                   */
+/* -------------------------------------------------------------------------- */
 
 .btn {
-    border-radius: 20px !important;
-    padding: 8px 18px;
-    font-weight: 600;
-    transition: 0.25s;
+    border-radius: 24px;
+    font-weight: 500;
+    padding: 7px 20px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Primary */
-.btn-primary {
-    background: var(--primary) !important;
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary, .btn-ku-red {
+    background-color: var(--primary) !important;
     border-color: var(--primary) !important;
+    color: #FFFFFF !important;
 }
 
-    .btn-primary:hover {
-        background: var(--primary-hover) !important;
-        transform: translateY(-2px);
-    }
-
-/* Outline primary */
-.btn-outline-primary {
-    border-color: var(--primary) !important;
-    color: var(--primary) !important;
+.btn-primary:hover, .btn-ku-red:hover {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+    box-shadow: 0 4px 14px rgba(178, 37, 37, 0.35) !important;
 }
 
-    .btn-outline-primary:hover {
-        background: var(--primary) !important;
-        color: white !important;
-    }
-
-/* Premium Reserve Button */
-.btn-reserve {
-    background: var(--accent) !important;
-    border-color: var(--accent) !important;
-    color: #fff !important;
+.btn-dark, .btn-ku-dark {
+    background-color: var(--dark) !important;
+    border-color: var(--dark) !important;
+    color: #FFFFFF !important;
 }
 
-    .btn-reserve:hover {
-        background: var(--primary-hover) !important;
-        transform: translateY(-2px);
-    }
-
-
-.btn-edit {
-    background: #4a4a4a !important;
-    border-color: #4a4a4a !important;
-    color: #fff !important;
-}
-
-    .btn-edit:hover {
-        background: #333 !important;
-    }
-
-
-/* Soft Green Button */
-.btn-soft-green {
-    background: var(--accent) !important;
-    border-color: var(--accent) !important;
-    color: #fff !important;
-}
-
-    .btn-soft-green:hover {
-        background: var(--primary-hover) !important;
-        transform: translateY(-2px);
-    }
-
-
-/* ------------------------------------------------------ */
-/* CARD ó Premium Soft Shadow                              */
-/* ------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* KARTLAR                                                                    */
+/* -------------------------------------------------------------------------- */
 
 .card {
-    border-radius: var(--radius);
-    border: none;
-    background: var(--bg-white);
-    box-shadow: var(--shadow);
-    transition: 0.3s ease;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s ease;
 }
 
-    .card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-hover);
-    }
-
-.card-header {
-    background: var(--primary);
-    color: white;
-    font-weight: 600;
+.hover-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-
-/* ------------------------------------------------------ */
-/* FORMS                                                   */
-/* ------------------------------------------------------ */
-
-.form-control, .form-select {
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    background: #fff;
-    border: 1px solid #DDD;
-    transition: 0.2s;
+.hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover) !important;
+    border-color: rgba(178, 37, 37, 0.3) !important;
 }
 
-    .form-control:focus, .form-select:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 0.15rem rgba(168, 69, 69, 0.3);
-    }
-
-
-/* ------------------------------------------------------ */
-/* ROOM CARDS ó Premium UI                                 */
-/* ------------------------------------------------------ */
-
-.room-card {
-    background: #fff;
-    padding: 22px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    border-top: 4px solid var(--primary-light);
-    text-align: center;
-    transition: 0.3s ease;
-}
-
-    .room-card:hover {
-        transform: translateY(-6px);
-        box-shadow: var(--shadow-hover);
-        border-top: 4px solid var(--primary);
-    }
-
-.room-icon i {
-    font-size: 42px;
-    color: var(--primary); /* ODA ›KON RENG› D‹ZELD› */
-    text-shadow: 0 3px 8px rgba(168, 69, 69, 0.25);
-}
-
-.room-title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    color: var(--primary);
-
-
-
-/* ------------------------------------------------------ */
-/* FULLCALENDAR ó Premium Red Theme                        */
-/* ------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
+/* FULLCALENDAR                                                               */
+/* -------------------------------------------------------------------------- */
 
 #calendar {
-    background: var(--bg-white);
-    padding: 25px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    font-family: inherit;
 }
 
-/* G¸n hover */
-.fc-daygrid-day:hover {
-    background: var(--primary-light);
-}
-
-/* Ba˛l˝k */
-.fc-toolbar-title {
-    color: var(--primary);
+.fc .fc-toolbar-title {
+    font-size: 1.35rem;
     font-weight: 700;
 }
 
-/* Takvim butonlar˝ */
-.fc-button-primary {
-    background: var(--primary) !important;
+.fc .fc-button-primary {
+    background-color: var(--dark) !important;
+    border-color: var(--dark) !important;
+    border-radius: 20px !important;
+    padding: 6px 14px !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+}
+
+.fc .fc-button-primary:hover,
+.fc .fc-button-primary.fc-button-active {
+    background-color: var(--primary) !important;
     border-color: var(--primary) !important;
 }
 
-    .fc-button-primary:hover {
-        background: var(--primary-hover) !important;
-    }
-
-/* Etkinlik kutular˝ */
 .fc-event {
-    background: var(--primary) !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 6px !important;
-    box-shadow: var(--shadow);
-}
-
-    .fc-event:hover {
-        transform: scale(1.04);
-        box-shadow: var(--shadow-hover);
-    }
-
-/* TAKV›M ›KON RENK D‹ZELTME */
-.bi-clock, .bi-clock-fill {
-    color: var(--primary) !important;
-}
-
-
-/* ------------------------------------------------------ */
-/* FOOTER                                                  */
-/* ------------------------------------------------------ */
-
-.footer {
-    background: var(--dark);
-    color: #DDD;
-    padding: 20px;
-}
-
-    .footer a {
-        color: var(--accent);
-    }
-
-
-/* ------------------------------------------------------ */
-/* CAPTCHA                                                 */
-/* ------------------------------------------------------ */
-
-.captcha-box {
-    background: #fff;
-    padding: 14px;
-    border-radius: var(--radius);
-    font-size: 22px;
-    letter-spacing: 6px;
-    font-weight: 700;
-    box-shadow: var(--shadow);
-}
-/* ------------------------------------------------------ */
-/* DASHBOARD CARDS ó Premium Admin UI                     */
-/* ------------------------------------------------------ */
-/* Dashboard Cards */
-.dashboard-card {
-    background: var(--bg-white);
-    padding: 25px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    transition: 0.3s ease;
-}
-
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-hover);
-    }
-
-.dashboard-icon {
-    font-size: 40px;
-    color: var(--primary);
-    margin-bottom: 10px;
-}
-
-.dashboard-value {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--dark);
-}
-
-.dashboard-label {
-    font-size: 16px;
-    color: var(--text-soft);
-}
-
-
-}
-/* ------------------------------------------------------ */
-/* ADMIN SIDEBAR ñ Premium Dark Theme                     */
-/* ------------------------------------------------------ */
-
-.admin-sidebar {
-    background: var(--dark);
-    padding: 20px;
-    height: 100vh;
-    box-shadow: var(--shadow);
-}
-
-    .admin-sidebar a {
-        color: #fff;
-        font-weight: 500;
-        margin-bottom: 14px;
-        display: block;
-        transition: 0.2s;
-    }
-
-        .admin-sidebar a:hover {
-            color: var(--accent);
-            transform: translateX(4px);
-        }
-
-/* ------------------------------------------------------ */
-/* LOGIN / REGISTER BUTTONS ñ White Style                 */
-/* ------------------------------------------------------ */
-
-.btn-login-white,
-.btn-register-white {
-    background: #ffffff !important;
-    color: #000 !important;
-    border: 1px solid #ddd !important;
-    font-weight: 600;
-    border-radius: 20px;
-    padding: 6px 18px;
-    transition: 0.25s;
-}
-
-    .btn-login-white:hover,
-    .btn-register-white:hover {
-        background: #f2f2f2 !important;
-        color: #000 !important;
-        transform: translateY(-2px);
-    }
-
-button:focus, a:focus, .btn:focus {
-    outline: 3px solid #B22525 !important;
-    box-shadow: 0 0 5px #B22525 !important;
-}
-/* ------------------------------------------------------ */
-/* ROOM CARD BUTTON ALIGNMENT & SIZE FIX                  */
-/* ------------------------------------------------------ */
-
-/* Oda kart˝ iÁindeki t¸m aksiyon butonlar˝ */
-.room-card .btn {
-    min-width: 120px; /* ?? Hepsi ayn˝ geni˛lik */
-    height: 38px; /* ?? Ayn˝ y¸kseklik */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-}
-
-/* D¸zenle - Sil - Rezerve Et hizalama */
-.room-card .room-actions {
-    display: flex;
-    justify-content: center; /* ?? ORTALAMA */
-    gap: 12px; /* ?? Butonlar aras˝ bo˛luk */
-    flex-wrap: wrap;
-}
-
-/* Rezerve Et ˆzel gˆr¸n¸m (ayn˝ boyut + g¸Ál¸ vurgu) */
-.room-card .btn-reserve,
-.room-card .btn-danger {
-    min-width: 140px;
-    font-weight: 600;
-}
-.dashboard-card {
+    border-radius: 6px !important;
+    padding: 3px 6px !important;
+    font-size: 0.82rem;
     cursor: pointer;
-    transition: 0.3s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: none !important;
 }
 
-    .dashboard-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+.fc-event:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* -------------------------------------------------------------------------- */
+/* YAZDIRMA (PRINT) STƒ∞LLERƒ∞                                                  */
+/* -------------------------------------------------------------------------- */
+
+@media print {
+    body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        font-size: 12pt;
     }
 
-    .dashboard-card i {
-        font-size: 42px;
+    .d-print-none, header, footer, .navbar, .btn, .breadcrumb {
+        display: none !important;
     }
 
-
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #CCC !important;
+    }
+}

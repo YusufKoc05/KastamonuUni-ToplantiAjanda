@@ -1,158 +1,543 @@
-﻿@model List<KastamonuMeetingRoom.Models.Reservation>
-
 @{
-    ViewData["Title"] = "Takvim";
+    ViewData["Title"] = "Toplantı Ajandası & Takvim - Kastamonu Üniversitesi";
+    var rooms = ViewBag.Rooms as List<KastamonuMeetingRoom.Models.Room> ?? new List<KastamonuMeetingRoom.Models.Room>();
+    int? selectedRoomId = ViewBag.SelectedRoomId as int?;
+    var meetingTypes = ViewBag.MeetingTypes as string[] ?? Array.Empty<string>();
 }
 
-<!-- FullCalendar CSS -->
+<!-- FullCalendar CSS & Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet" />
 
-<h2 class="fw-bold mb-4">
-    <i class="bi bi-calendar-week text-danger"></i>
-    Takvim Görünümü
-</h2>
+<div class="container-fluid px-3 py-2">
+    <!-- Üst Başlık & Eylem Çubuğu -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-4 shadow-sm border border-danger-subtle">
+        <div>
+            <h3 class="fw-bold mb-1 text-dark d-flex align-items-center">
+                <i class="bi bi-calendar2-range-fill text-danger me-2"></i>
+                Kastamonu Üniversitesi Toplantı Ajandası
+            </h3>
+            <p class="text-muted small mb-0">
+                Canlı senkronizasyon (SignalR) ve sürükle-bırak saat güncelleme destekli interaktif ajanda
+            </p>
+        </div>
 
-<div class="card shadow-sm p-4">
-    <div id="calendar"></div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <!-- Salon Filtresi -->
+            <div class="d-flex align-items-center bg-light px-3 py-1 rounded-pill border">
+                <i class="bi bi-door-open-fill text-danger me-2"></i>
+                <label for="roomFilter" class="small fw-bold me-2 mb-0">Salon:</label>
+                <select id="roomFilter" class="form-select form-select-sm border-0 bg-transparent fw-semibold" style="width: auto; min-width: 170px;">
+                    <option value="">Tüm Salonlar</option>
+                    @foreach (var room in rooms)
+                    {
+                        if (selectedRoomId == room.RoomId)
+                        {
+                            <option value="@room.RoomId" selected>@room.Name (@room.Capacity Kişi)</option>
+                        }
+                        else
+                        {
+                            <option value="@room.RoomId">@room.Name (@room.Capacity Kişi)</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <!-- Toplantı Türü Filtresi -->
+            <div class="d-flex align-items-center bg-light px-3 py-1 rounded-pill border">
+                <i class="bi bi-tag-fill text-secondary me-2"></i>
+                <label for="typeFilter" class="small fw-bold me-2 mb-0">Tür:</label>
+                <select id="typeFilter" class="form-select form-select-sm border-0 bg-transparent fw-semibold" style="width: auto; min-width: 170px;">
+                    <option value="">Tüm Toplantı Türleri</option>
+                    @foreach (var type in meetingTypes)
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </select>
+            </div>
+
+            @if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <a asp-action="ExportMyCalendarIcs" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm" title="Kişisel takvimimi (.ics) indir">
+                    <i class="bi bi-cloud-arrow-down-fill me-1"></i> Ajandamı İndir (.ics)
+                </a>
+            }
+
+            <!-- Yeni Toplantı Ekle -->
+            <a asp-action="Create" class="btn btn-sm btn-danger rounded-pill px-4 shadow-sm fw-semibold">
+                <i class="bi bi-plus-circle-fill me-1"></i> Yeni Toplantı Planla
+            </a>
+        </div>
+    </div>
+
+    <!-- Renk / Durum Göstergesi (Legend) -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between bg-white px-4 py-2 rounded-4 shadow-sm border mb-3 small text-muted">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+            <span class="d-flex align-items-center">
+                <span class="legend-dot" style="background:#b22525;"></span> Üniversite Toplantıları
+            </span>
+            <span class="d-flex align-items-center">
+                <span class="legend-dot" style="background:#111827;"></span> Benim Toplantılarım (Sürüklenebilir)
+            </span>
+            <span class="d-flex align-items-center">
+                <span class="legend-dot" style="background:#7f1d1d;"></span> Senato Toplantıları
+            </span>
+            <span class="d-flex align-items-center">
+                <span class="legend-dot" style="background:#9ca3af;"></span> İptal Edilenler
+            </span>
+        </div>
+        <div class="text-danger fw-medium">
+            <i class="bi bi-cursor-fill me-1"></i> Boş bir saat aralığını fareyle seçerek <strong>Hızlı Rezervasyon</strong> yapabilirsiniz.
+        </div>
+    </div>
+
+    <!-- Takvim Kartı -->
+    <div class="card shadow-sm border-0 rounded-4 p-3 bg-white">
+        <div id="calendar"></div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- 🌟 TOPLANTI AJANDA DETAY VE HIZLI İŞLEM MODAL PENCERESİ       -->
+<!-- ============================================================== -->
+<div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header text-white p-3" id="modalHeaderBg" style="background: linear-gradient(135deg, #111111 0%, #b22525 100%);">
+                <div>
+                    <span id="modalStatusBadge" class="badge bg-light text-dark rounded-pill mb-1 small fw-bold"></span>
+                    <span id="modalTypeBadge" class="badge bg-danger rounded-pill mb-1 small ms-1"></span>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="modalTitle">Toplantı Başlığı</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="list-group list-group-flush small">
+                    <!-- Salon Bilgisi -->
+                    <div class="list-group-item d-flex align-items-center px-0 py-2 border-0">
+                        <div class="icon-box bg-danger-subtle text-danger rounded-circle me-3">
+                            <i class="bi bi-door-open-fill"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted">Toplantı Salonu</div>
+                            <div class="fw-bold text-dark fs-6" id="modalRoom">Rektörlük Salonu</div>
+                            <div class="text-secondary small" id="modalRoomSub">Kapasite: 20 Kişi</div>
+                        </div>
+                    </div>
+
+                    <!-- Tarih & Saat -->
+                    <div class="list-group-item d-flex align-items-center px-0 py-2 border-0">
+                        <div class="icon-box bg-dark-subtle text-dark rounded-circle me-3">
+                            <i class="bi bi-clock-fill"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted">Tarih ve Saat</div>
+                            <div class="fw-bold text-dark fs-6" id="modalTime">10:00 - 11:30</div>
+                        </div>
+                    </div>
+
+                    <!-- Düzenleyen -->
+                    <div class="list-group-item d-flex align-items-center px-0 py-2 border-0">
+                        <div class="icon-box bg-secondary-subtle text-secondary rounded-circle me-3">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted">Düzenleyen Akademisyen / Personel</div>
+                            <div class="fw-bold text-dark" id="modalUser">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Gündem / Açıklama -->
+                    <div class="list-group-item px-0 py-2 border-0">
+                        <div class="text-muted mb-1"><i class="bi bi-journal-text text-danger me-1"></i> Toplantı Gündemi & Açıklama:</div>
+                        <div class="p-2 rounded bg-light border text-dark" id="modalDescription" style="white-space: pre-line; max-height: 120px; overflow-y: auto;">
+                            Açıklama bulunmuyor.
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-3" />
+
+                <!-- Ajandaya Ekleme Butonları -->
+                <h6 class="fw-bold text-dark mb-2 small text-uppercase">
+                    <i class="bi bi-calendar-plus text-danger me-1"></i> Ajandana Ekle:
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <button id="btnGoogleCal" type="button" class="btn btn-sm btn-outline-dark rounded-pill flex-fill">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google" style="width:16px; margin-right:4px;" /> Google Takvim
+                    </button>
+                    <button id="btnOutlookCal" type="button" class="btn btn-sm btn-outline-dark rounded-pill flex-fill">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" alt="Outlook" style="width:16px; margin-right:4px;" /> Outlook Takvim
+                    </button>
+                    <a id="btnIcsDownload" href="#" class="btn btn-sm btn-outline-danger rounded-pill flex-fill">
+                        <i class="bi bi-file-earmark-arrow-down-fill me-1"></i> iCal (.ics) İndir
+                    </a>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light p-3 d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Kapat</button>
+                <a id="btnGoDetails" href="#" class="btn btn-sm btn-danger rounded-pill px-3 fw-semibold">
+                    <i class="bi bi-arrow-right-circle me-1"></i> Detaylı İncele / Tutanak
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================== -->
+<!-- ⚡ HIZLI REZERVASYON MODALI (SEÇİLEN BOŞ ARALIKTAN KAYDETME)    -->
+<!-- ============================================================== -->
+<div class="modal fade" id="quickReservationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+            <div class="modal-header text-white p-3" style="background: linear-gradient(135deg, #111111 0%, #b22525 100%);">
+                <h5 class="modal-title fw-bold text-white mb-0">
+                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Hızlı Toplantı Planla
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="quickReservationForm">
+                    <input type="hidden" id="quickStartTime" />
+                    <input type="hidden" id="quickEndTime" />
+
+                    <div class="alert alert-light border small text-muted mb-3">
+                        <i class="bi bi-clock-fill text-danger me-1"></i>
+                        Seçilen Zaman: <strong id="quickTimeRangeText" class="text-dark"></strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">Toplantı Salonu <span class="text-danger">*</span></label>
+                        <select id="quickRoomId" class="form-select rounded-3" required>
+                            @foreach (var room in rooms)
+                            {
+                                <option value="@room.RoomId">@room.Name (@room.Capacity Kişi)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">Toplantı Başlığı <span class="text-danger">*</span></label>
+                        <input type="text" id="quickTitle" class="form-control rounded-3" placeholder="Örn: Bölüm Kurulu, Tez Savunması..." required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">Toplantı Türü</label>
+                        <select id="quickMeetingType" class="form-select rounded-3">
+                            @foreach (var type in meetingTypes)
+                            {
+                                <option value="@type">@type</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small">Gündem / Açıklama (Opsiyonel)</label>
+                        <textarea id="quickDescription" class="form-control rounded-3" rows="2" placeholder="Gündem maddeleri..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-secondary rounded-pill btn-sm px-3" data-bs-dismiss="modal">Vazgeç</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold">
+                            <i class="bi bi-check2-circle me-1"></i> Kaydet ve Takvime Ekle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-    <!-- FullCalendar JS -->
+    <!-- FullCalendar JS ve Türkçe Dil Paketi -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales/tr.global.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-
             var calendarEl = document.getElementById('calendar');
+            var roomFilter = document.getElementById('roomFilter');
+            var typeFilter = document.getElementById('typeFilter');
+            var detailModal = new bootstrap.Modal(document.getElementById('eventDetailModal'));
+            var quickModal = new bootstrap.Modal(document.getElementById('quickReservationModal'));
+            var isAuthenticated = @((User.Identity?.IsAuthenticated ?? false) ? "true" : "false");
 
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 locale: 'tr',
-                initialView: 'dayGridMonth',
+                initialView: 'timeGridWeek', // Haftalık zaman çizelgesi varsayılan
                 height: 'auto',
+                firstDay: 1, // Pazartesi ile başla
+                nowIndicator: true,
+                slotMinTime: '08:00:00',
+                slotMaxTime: '21:00:00',
+                allDaySlot: false,
+                navLinks: true,
+                selectable: isAuthenticated, // Giriş yapmışsa fare ile aralık seçebilir
+                selectMirror: true,
+                editable: isAuthenticated,   // Giriş yapmışsa sürükle-bırak yapabilir
 
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
-
                 buttonText: {
                     today: 'Bugün',
                     month: 'Ay',
                     week: 'Hafta',
                     day: 'Gün',
-                    list: 'Liste'
+                    list: 'Ajanda / Liste'
                 },
 
-                events: '/Reservation/GetEvents',
+                // Etkinlik Kaynağı (Dinamik Salon & Tür Filtresi)
+                events: function (fetchInfo, successCallback, failureCallback) {
+                    var roomId = roomFilter.value;
+                    var type = typeFilter.value;
+                    var url = '/Reservation/GetEvents?';
+                    if (roomId) url += 'roomId=' + roomId + '&';
+                    if (type) url += 'meetingType=' + encodeURIComponent(type);
+
+                    fetch(url)
+                        .then(function (res) { return res.json(); })
+                        .then(function (data) { successCallback(data); })
+                        .catch(function (err) { failureCallback(err); });
+                },
 
                 eventDisplay: 'block',
 
-                /* 🔥 TAKVİM ÜZERİNDE SADECE BAŞLIK (SAAT YOK) */
                 eventContent: function (arg) {
-                    return {
-                        html: `<span class="fc-title-only">${arg.event.title}</span>`
-                    };
-                },  // ✅ BURADAKİ VİRGÜL ÇOK ÖNEMLİ
+                    var props = arg.event.extendedProps;
+                    var timeText = arg.timeText || '';
+                    var title = arg.event.title;
+                    var roomName = props.room ? (' [' + props.room + ']') : '';
+                    var typeTag = props.meetingType ? (' <span class="badge bg-dark bg-opacity-50" style="font-size:0.65rem;">' + props.meetingType + '</span>') : '';
+                    
+                    var html = '<div class="fc-custom-event-content">' +
+                               '<span class="fc-custom-event-time">' + timeText + '</span> ' +
+                               '<span class="fc-custom-event-title fw-semibold">' + title + '</span>' +
+                               '<span class="fc-custom-event-room text-white-50 small">' + roomName + '</span>' +
+                               typeTag +
+                               '</div>';
+                    return { html: html };
+                },
 
-                eventDidMount: function (info) {
+                // 🖱️ SÜRÜKLE-BIRAK (DRAG & DROP) SAAT GÜNCELLEMESİ
+                eventDrop: function (info) {
+                    handleTimeUpdate(info);
+                },
 
-                    /* 🔴 İPTAL EDİLENLER */
-                    if (info.event.extendedProps.isCancelled) {
-                        info.el.style.opacity = "0.45";
-                        info.el.style.textDecoration = "line-through";
+                // ↔️ SÜRE UZATMA / KISALTMA (RESIZE)
+                eventResize: function (info) {
+                    handleTimeUpdate(info);
+                },
 
-                        // Liste görünümü için
-                        if (info.view.type.startsWith("list")) {
-                            info.el.style.backgroundColor = "#f1f1f1";
-                            info.el.style.borderLeft = "5px solid #999";
-                        }
+                // ⚡ FARE İLE ARALIK SEÇİLDİĞİNDE HIZLI REZERVASYON MODALI AÇ
+                select: function (selectionInfo) {
+                    if (!isAuthenticated) {
+                        window.location.href = '/Account/Login?ReturnUrl=%2FReservation%2FCalendar';
+                        return;
                     }
 
-                    /* 🧾 TOOLTIP (TÜM DETAYLAR HOVER'DA) */
-                    new bootstrap.Tooltip(info.el, {
-                        html: true,
-                        placement: 'top',
-                        title: `
-                            <b>${info.event.title}</b><br/>
-                            👤 Kullanıcı: ${info.event.extendedProps.user ?? '-'}<br/>
-                            🏢 Oda: ${info.event.extendedProps.room}<br/>
-                            🕒 Başlangıç: ${info.event.start.toLocaleString()}<br/>
-                            🕒 Bitiş: ${info.event.end.toLocaleString()}<br/>
-                            📝 ${info.event.extendedProps.description}
-                        `
-                    });
+                    var start = selectionInfo.start;
+                    var end = selectionInfo.end;
+
+                    document.getElementById('quickStartTime').value = start.toISOString();
+                    document.getElementById('quickEndTime').value = end.toISOString();
+
+                    var timeStr = start.toLocaleDateString('tr-TR') + ' ' + 
+                                  start.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'}) + ' — ' +
+                                  end.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+                    document.getElementById('quickTimeRangeText').textContent = timeStr;
+
+                    if (roomFilter.value) {
+                        document.getElementById('quickRoomId').value = roomFilter.value;
+                    }
+
+                    document.getElementById('quickTitle').value = '';
+                    document.getElementById('quickDescription').value = '';
+
+                    quickModal.show();
+                    calendar.unselect();
                 },
 
                 eventClick: function (info) {
                     info.jsEvent.preventDefault();
-                    window.location.href = '/Reservation/Details/' + info.event.id;
+                    var event = info.event;
+                    var props = event.extendedProps;
+
+                    document.getElementById('modalTitle').textContent = event.title;
+                    document.getElementById('modalRoom').textContent = props.room;
+                    document.getElementById('modalRoomSub').textContent = (props.location ? props.location + ' • ' : '') + 'Kapasite: ' + props.capacity + ' Kişi';
+                    document.getElementById('modalTime').textContent = props.startTimeText + ' — ' + props.endTimeText;
+                    document.getElementById('modalUser').textContent = props.user;
+                    document.getElementById('modalTypeBadge').textContent = props.meetingType || 'Toplantı';
+                    document.getElementById('modalDescription').textContent = props.description;
+
+                    var statusBadge = document.getElementById('modalStatusBadge');
+                    var headerBg = document.getElementById('modalHeaderBg');
+
+                    if (props.isCancelled) {
+                        statusBadge.className = 'badge bg-secondary rounded-pill mb-1 small';
+                        statusBadge.textContent = '❌ İptal Edildi';
+                        headerBg.style.background = '#6c757d';
+                    } else {
+                        statusBadge.className = 'badge bg-light text-danger rounded-pill mb-1 small fw-bold';
+                        statusBadge.textContent = '✓ Planlandı / Aktif';
+                        headerBg.style.background = 'linear-gradient(135deg, #111111 0%, #b22525 100%)';
+                    }
+
+                    document.getElementById('btnGoDetails').href = props.detailsUrl;
+                    document.getElementById('btnIcsDownload').href = props.icsUrl;
+
+                    document.getElementById('btnGoogleCal').onclick = function () {
+                        var startUtc = event.start.toISOString().replace(/-|:|\.\d\d\d/g, "");
+                        var endUtc = event.end ? event.end.toISOString().replace(/-|:|\.\d\d\d/g, "") : startUtc;
+                        var title = encodeURIComponent(event.title);
+                        var loc = encodeURIComponent(props.room + ', Kastamonu Üniversitesi');
+                        var desc = encodeURIComponent(props.description + '\nDüzenleyen: ' + props.user);
+                        var gUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startUtc}/${endUtc}&details=${desc}&location=${loc}`;
+                        window.open(gUrl, '_blank');
+                    };
+
+                    document.getElementById('btnOutlookCal').onclick = function () {
+                        var start = event.start.toISOString().slice(0, 19);
+                        var end = event.end ? event.end.toISOString().slice(0, 19) : start;
+                        var title = encodeURIComponent(event.title);
+                        var loc = encodeURIComponent(props.room + ', Kastamonu Üniversitesi');
+                        var desc = encodeURIComponent(props.description);
+                        var oUrl = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${start}&enddt=${end}&body=${desc}&location=${loc}`;
+                        window.open(oUrl, '_blank');
+                    };
+
+                    detailModal.show();
                 }
             });
 
+            // SignalR için global referans
+            window.calendarRef = calendar;
             calendar.render();
+
+            // Filtre Değişiklikleri
+            roomFilter.addEventListener('change', function () { calendar.refetchEvents(); });
+            typeFilter.addEventListener('change', function () { calendar.refetchEvents(); });
+
+            // 🖱️ Sürükle-Bırak Saat Güncelleme Fonksiyonu
+            function handleTimeUpdate(info) {
+                var payload = {
+                    id: parseInt(info.event.id),
+                    start: info.event.start.toISOString(),
+                    end: (info.event.end || info.event.start).toISOString()
+                };
+
+                fetch('/Reservation/QuickUpdateTimes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(res) {
+                    if (res.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Saat Güncellendi!',
+                            text: 'Toplantı yeni saat aralığına başarıyla taşındı.',
+                            toast: true,
+                            position: 'top-end',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        info.revert();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Çakışma Uyarısı',
+                            text: res.message || 'Saat güncellenemedi.'
+                        });
+                    }
+                })
+                .catch(function(err) {
+                    info.revert();
+                    Swal.fire({ icon: 'error', title: 'Hata', text: 'Sunucuya bağlanılamadı.' });
+                });
+            }
+
+            // ⚡ Hızlı Rezervasyon Formu Gönderimi
+            document.getElementById('quickReservationForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                var payload = {
+                    roomId: parseInt(document.getElementById('quickRoomId').value),
+                    title: document.getElementById('quickTitle').value,
+                    meetingType: document.getElementById('quickMeetingType').value,
+                    description: document.getElementById('quickDescription').value,
+                    startTime: document.getElementById('quickStartTime').value,
+                    endTime: document.getElementById('quickEndTime').value
+                };
+
+                fetch('/Reservation/QuickCreate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(res) {
+                    if (res.success) {
+                        quickModal.hide();
+                        calendar.refetchEvents();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Tebrikler!',
+                            text: 'Toplantı rezervasyonunuz başarıyla kaydedildi.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Rezervasyon Yapılamadı',
+                            text: res.message
+                        });
+                    }
+                })
+                .catch(function(err) {
+                    Swal.fire({ icon: 'error', title: 'Hata', text: 'İşlem gerçekleştirilemedi.' });
+                });
+            });
         });
     </script>
-
 }
 
 <style>
-    #calendar {
-        background: #fff;
-        padding: 20px;
-        border-radius: 14px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
     }
 
-    /* 🎯 TAKVİM EVENT TASARIMI */
-    .fc-event {
-        border-radius: 10px !important;
-        padding: 6px 10px !important;
-        font-weight: 500;
-        background: linear-gradient(135deg, #b22525, #d14b4b);
-        border: none !important;
+    .icon-box {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
     }
 
-    .fc-title-only {
-        color: #fff;
-        font-size: 14px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    /* 🔹 AY / HAFTA / GÜN görünümündeki event (sunum) */
-    .fc-event {
-        background: #6c757d !important; /* gri arka plan */
-        border: none !important;
-    }
-    /* LİSTE GÖRÜNÜMÜ EVENT SATIRI */
-    .fc-list-event {
-        background-color: #fde2e2 !important; /* çok açık kırmızı */
+    .fc-custom-event-content {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.25;
     }
 
-    .fc-list-event-title {
-        color: #555 !important; /* koyu gri yazı */
-        font-weight: 600;
+    .fc-custom-event-time {
+        font-size: 0.72rem;
+        opacity: 0.9;
     }
 
-    .fc-list-event-time {
-        color: #777 !important;
+    .fc-custom-event-room {
+        font-size: 0.7rem;
     }
-
-
-   
-
-
-    /* Nokta ikon (●) */
-    .fc-list-event-dot {
-        border-color: #6b7280 !important;
-    }
-
-
 </style>
-
-
-
-
-

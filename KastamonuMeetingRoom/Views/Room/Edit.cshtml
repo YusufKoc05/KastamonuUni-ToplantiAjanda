@@ -1,21 +1,68 @@
-﻿
 @model KastamonuMeetingRoom.Models.Room
 
+@{
+    ViewData["Title"] = "Toplantı Salonunu Düzenle";
+}
 
-<h2>Odayı Düzenle</h2>
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header text-white p-4" style="background: linear-gradient(135deg, #111111 0%, #8E1C1C 60%, #B22525 100%);">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white bg-opacity-20 p-3 me-3 text-white">
+                            <i class="bi bi-pencil-square fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-1 text-white">Toplantı Salonunu Düzenle</h4>
+                            <p class="mb-0 text-white-50 small">
+                                Salon adını, kapasitesini veya konum bilgisini güncelleyin.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-<form method="post">
-    <input type="hidden" asp-for="RoomId" />
+                <div class="card-body p-4">
+                    <form method="post" asp-action="Edit">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="RoomId" />
 
-    <label>Oda Adı</label>
-    <input asp-for="Name" class="form-control" />
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold text-dark">
+                                <i class="bi bi-fonts text-danger me-1"></i> Salon Adı <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Name" class="form-control rounded-3 py-2" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
 
-    <label>Kapasite</label>
-    <input asp-for="Capacity" class="form-control" />
+                        <div class="mb-3">
+                            <label asp-for="Capacity" class="form-label fw-bold text-dark">
+                                <i class="bi bi-people-fill text-danger me-1"></i> Katılımcı Kapasitesi <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Capacity" type="number" min="1" class="form-control rounded-3 py-2" />
+                            <span asp-validation-for="Capacity" class="text-danger small"></span>
+                        </div>
 
-    <label>Lokasyon</label>
-    <input asp-for="Location" class="form-control" />
+                        <div class="mb-4">
+                            <label asp-for="Location" class="form-label fw-bold text-dark">
+                                <i class="bi bi-geo-alt-fill text-danger me-1"></i> Konum / Bina & Kat <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Location" class="form-control rounded-3 py-2" />
+                            <span asp-validation-for="Location" class="text-danger small"></span>
+                        </div>
 
-   
-    <button class="btn btn-primary mt-3">Güncelle</button>
-</form>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="bi bi-arrow-left me-1"></i> İptal / Geri Dön
+                            </a>
+
+                            <button type="submit" class="btn btn-danger rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                <i class="bi bi-check2-circle me-1"></i> Güncellemeyi Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

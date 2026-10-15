@@ -1,0 +1,292 @@
+@model KastamonuMeetingRoom.Models.Room
+
+@{
+    Layout = null;
+    var todayReservations = ViewBag.TodayReservations as List<KastamonuMeetingRoom.Models.Reservation> ?? new List<KastamonuMeetingRoom.Models.Reservation>();
+    var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Reservation/Calendar?roomId={Model.RoomId}";
+    var qrCodeUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={Uri.EscapeDataString(currentUrl)}";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.Name - Salon Kapı Bilgi Ekranı</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0f1115;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .header-bar {
+            background: linear-gradient(90deg, #111111 0%, #1e1e1e 60%, #b22525 100%);
+            border-bottom: 4px solid #b22525;
+            padding: 15px 30px;
+        }
+
+        .clock-box {
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .status-hero {
+            padding: 40px;
+            border-radius: 24px;
+            transition: all 0.5s ease;
+        }
+
+        .status-occupied {
+            background: linear-gradient(135deg, rgba(178, 37, 37, 0.25) 0%, rgba(136, 19, 19, 0.4) 100%);
+            border: 2px solid #b22525;
+            box-shadow: 0 0 40px rgba(178, 37, 37, 0.35);
+        }
+
+        .status-free {
+            background: linear-gradient(135deg, rgba(22, 101, 52, 0.25) 0%, rgba(20, 83, 45, 0.4) 100%);
+            border: 2px solid #16a34a;
+            box-shadow: 0 0 40px rgba(22, 163, 74, 0.35);
+        }
+
+        .pulse-circle {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 12px;
+            animation: pulse 1.8s infinite;
+        }
+
+        .pulse-red { background: #ef4444; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        .pulse-green { background: #22c55e; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+
+        @@keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { transform: scale(1.15); box-shadow: 0 0 0 16px rgba(255, 255, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        .agenda-card {
+            background: #181a20;
+            border: 1px solid #282a36;
+            border-radius: 18px;
+        }
+
+        .badge-equipment {
+            background: rgba(255, 255, 255, 0.1);
+            color: #d1d5db;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ÜST BİLGİ VE LOGO ÇUBUĞU -->
+    <div class="header-bar d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <img src="~/images/LOGO.png" alt="KÜ" style="height: 54px; width: auto; margin-right: 15px;" />
+            <div>
+                <h3 class="fw-bold mb-0 text-white">KASTAMONU ÜNİVERSİTESİ</h3>
+                <small class="text-white-50">TOPLANTI SALONU KAPI BİLGİ EKRANI (KIOSK)</small>
+            </div>
+        </div>
+
+        <div class="text-end">
+            <div id="liveClock" class="clock-box">--:--:--</div>
+            <div id="liveDate" class="text-white-50 small">-- ------ ----</div>
+        </div>
+    </div>
+
+    <!-- ORTA ALAN: SALON DURUMU VE PROGRAM -->
+    <div class="container-fluid p-4 p-lg-5 flex-grow-1">
+        <div class="row g-4 align-items-stretch">
+
+            <!-- SOL PANEL: CANLI MÜSAİTLİK BİLGİSİ -->
+            <div class="col-lg-7">
+                <div class="status-hero h-100 d-flex flex-column justify-content-between @(Model.IsCurrentlyOccupied ? "status-occupied" : "status-free")">
+                    <div>
+                        <!-- Salon İsmi ve Başlık -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h1 class="display-6 fw-bold mb-0 text-white">@Model.Name</h1>
+                            <span class="badge bg-dark border text-light px-3 py-2 rounded-pill fs-6">
+                                <i class="bi bi-people-fill text-danger me-1"></i> @Model.Capacity Kişilik
+                            </span>
+                        </div>
+                        <p class="text-white-50 fs-5 mb-4">
+                            <i class="bi bi-geo-alt-fill text-danger me-2"></i> @Model.Location • @Model.Department
+                        </p>
+
+                        <!-- Büyük Durum Başlığı -->
+                        <div class="d-flex align-items-center my-4">
+                            @if (Model.IsCurrentlyOccupied)
+                            {
+                                <span class="pulse-circle pulse-red"></span>
+                                <h2 class="fw-bold text-danger mb-0">MEŞGUL - TOPLANTI DEVAM EDİYOR</h2>
+                            }
+                            else
+                            {
+                                <span class="pulse-circle pulse-green"></span>
+                                <h2 class="fw-bold text-success mb-0">MÜSAİT - ŞU AN BOŞ</h2>
+                            }
+                        </div>
+
+                        <!-- Detay Bilgisi -->
+                        @if (Model.IsCurrentlyOccupied)
+                        {
+                            <div class="p-4 rounded-4 bg-black bg-opacity-40 border border-danger border-opacity-50 mt-4">
+                                <span class="badge bg-danger rounded-pill px-3 py-1 mb-2">Devam Eden Oturum</span>
+                                <h3 class="fw-bold text-white mb-2">@Model.CurrentMeetingTitle</h3>
+                                <p class="text-white-50 fs-6 mb-3">
+                                    <i class="bi bi-person-fill text-danger me-1"></i> Düzenleyen: <strong>@Model.CurrentMeetingUser</strong>
+                                </p>
+                                <div class="fs-4 text-warning fw-bold">
+                                    <i class="bi bi-hourglass-split me-1"></i> Kalan Süre: yaklaşık @Model.RemainingMinutes dakika
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="p-4 rounded-4 bg-black bg-opacity-40 border border-success border-opacity-50 mt-4">
+                                <span class="badge bg-success rounded-pill px-3 py-1 mb-2">Salon Durumu</span>
+                                <h4 class="fw-bold text-white mb-2">Bu salon şu an toplantı için kullanılabilir.</h4>
+                                @if (Model.NextMeeting != null)
+                                {
+                                    <p class="text-white-50 fs-6 mb-0">
+                                        <i class="bi bi-calendar-event text-success me-1"></i> Sıradaki Toplantı:
+                                        <strong class="text-white">@Model.NextMeeting.Title</strong> (@Model.NextMeeting.StartTime.ToString("HH:mm") — @Model.NextMeeting.EndTime.ToString("HH:mm"))
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p class="text-white-50 fs-6 mb-0">Bugün için başka planlanmış toplantı bulunmuyor.</p>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Donanım İkonları -->
+                    <div class="d-flex flex-wrap gap-2 mt-4 pt-3 border-top border-white border-opacity-10">
+                        @if (Model.HasProjector) { <span class="badge-equipment"><i class="bi bi-projector text-danger me-1"></i> 4K Projeksiyon</span> }
+                        @if (Model.HasVideoConference) { <span class="badge-equipment"><i class="bi bi-camera-video text-danger me-1"></i> Zoom / Video Konferans</span> }
+                        @if (Model.HasSmartBoard) { <span class="badge-equipment"><i class="bi bi-easel text-danger me-1"></i> Akıllı Tahta</span> }
+                        @if (Model.HasSoundSystem) { <span class="badge-equipment"><i class="bi bi-mic text-danger me-1"></i> Telsiz Ses Sistemi</span> }
+                        @if (Model.HasDisabledAccess) { <span class="badge-equipment"><i class="bi bi-universal-access text-danger me-1"></i> Engelli Erişimi</span> }
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAĞ PANEL: BUGÜNKÜ GÜNDEM VE AKILLI QR KOD -->
+            <div class="col-lg-5">
+                <div class="agenda-card h-100 p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="fw-bold mb-0 text-white">
+                                <i class="bi bi-clock-history text-danger me-2"></i> Günün Oturumları
+                            </h4>
+                            <span class="badge bg-secondary rounded-pill">@todayReservations.Count Toplantı</span>
+                        </div>
+
+                        <div class="list-group list-group-flush gap-2" style="max-height: 380px; overflow-y: auto;">
+                            @if (!todayReservations.Any())
+                            {
+                                <div class="text-center py-5 text-white-50">
+                                    <i class="bi bi-calendar-check display-4 d-block mb-3 text-secondary"></i>
+                                    Bugün için henüz toplantı kaydı yok.
+                                </div>
+                            }
+                            else
+                            {
+                                @foreach (var item in todayReservations)
+                                {
+                                    var isNow = DateTime.Now >= item.StartTime && DateTime.Now <= item.EndTime;
+                                    var isPast = DateTime.Now > item.EndTime;
+                                    <div class="p-3 rounded-3 border @(isNow ? "border-danger bg-danger bg-opacity-10" : "border-secondary border-opacity-25 bg-black bg-opacity-30") @(isPast ? "opacity-50" : "")">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="fw-bold fs-6 text-danger">@item.StartTime.ToString("HH:mm") — @item.EndTime.ToString("HH:mm")</span>
+                                            @if (isNow)
+                                            {
+                                                <span class="badge bg-danger rounded-pill">Şu Anda</span>
+                                            }
+                                        </div>
+                                        <div class="fw-bold text-white fs-6">@item.Title</div>
+                                        <small class="text-white-50"><i class="bi bi-person me-1"></i> @(item.User?.FullName ?? "Akademisyen")</small>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- QR KOD BÖLÜMÜ -->
+                    <div class="mt-4 p-3 rounded-4 bg-black bg-opacity-50 border border-white border-opacity-10 d-flex align-items-center">
+                        <img src="@qrCodeUrl" alt="QR Kod" class="rounded-3 p-1 bg-white me-3" style="width: 100px; height: 100px;" />
+                        <div>
+                            <div class="fw-bold text-white small mb-1"><i class="bi bi-qr-code-scan text-danger me-1"></i> AKILLI KAPI ERİŞİMİ</div>
+                            <p class="text-white-50 small mb-2">Telefonunuzla okutarak bu salonun haftalık ajandasını inceleyin veya yeni toplantı rezerve edin.</p>
+                            <a href="/Reservation/Calendar?roomId=@Model.RoomId" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                                Web Ajandasına Git
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ALT BİLGİ / KONTROLLER -->
+    <div class="p-3 text-center text-white-50 small bg-black bg-opacity-50 d-flex justify-content-between align-items-center px-4">
+        <span>© @DateTime.Now.Year Kastamonu Üniversitesi — Kapı Bilgi Sistemi (Otomatik Güncelleme Aktif)</span>
+        <button onclick="toggleFullScreen()" class="btn btn-sm btn-outline-secondary rounded-pill text-white-50">
+            <i class="bi bi-fullscreen me-1"></i> Tam Ekran (F11)
+        </button>
+    </div>
+
+    <script>
+        // Dijital Saat Tıklama
+        function updateClock() {
+            var now = new Date();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('liveClock').textContent = hours + ':' + minutes + ':' + seconds;
+
+            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('liveDate').textContent = now.toLocaleDateString('tr-TR', options);
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Her 30 saniyede bir sayfayı yenileyerek canlı toplantı durumunu tazele
+        setTimeout(function() {
+            window.location.reload();
+        }, 30000);
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

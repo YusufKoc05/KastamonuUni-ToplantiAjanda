@@ -1,86 +1,303 @@
-﻿@{
-    ViewData["Title"] = "Anasayfa";
+@model KastamonuMeetingRoom.Models.HomeDashboardViewModel
+
+@{
+    ViewData["Title"] = "Anasayfa - Kastamonu Üniversitesi Toplantı & Ajanda Sistemi";
 }
 
-<div class="container mt-5">
-
-    <!-- HERO -->
-    <div class="text-center mb-5">
-        <h1 class="fw-bold display-5 text-dark">
-            Kastamonu Üniversitesi<br />
-            <span class="text-danger">Toplantı Odası Rezervasyon Sistemi</span>
-        </h1>
-
-        <p class="fs-5 mt-4 text-secondary">
-            Akademik ve idari personel için özel olarak geliştirilen,
-            <strong>planlı, güvenli ve kullanıcı dostu</strong>
-            toplantı odası yönetim platformu
-        </p>
-
-        <p class="mt-2 text-muted">
-            Oda uygunluklarını anında görüntüleyin,
-            rezervasyonlarınızı tek merkezden yönetin.
-        </p>
-
-       
+<!-- ========================================== -->
+<!-- 🌟 HERO / KARŞILAMA BÖLÜMÜ (SİYAH & KIRMIZI) -->
+<!-- ========================================== -->
+<div class="hero-section text-white p-5 rounded-4 mb-5 shadow-lg position-relative overflow-hidden" 
+     style="background: linear-gradient(135deg, #121212 0%, #1c1917 40%, #991b1b 100%); border-bottom: 4px solid #b22525;">
+    <div class="position-absolute end-0 top-0 bottom-0 opacity-10 d-none d-lg-block p-4">
+        <i class="bi bi-calendar2-week" style="font-size: 16rem;"></i>
     </div>
 
-    <!-- ÖZELLİKLER -->
-    <div class="row g-4 text-center">
+    <div class="row align-items-center position-relative">
+        <div class="col-lg-8">
+            <div class="d-inline-flex align-items-center bg-white bg-opacity-10 px-3 py-1 rounded-pill mb-3 border border-white border-opacity-20">
+                <img src="~/images/LOGO.png" alt="KÜ" style="height: 24px; width: auto; margin-right: 8px;" />
+                <span class="small fw-semibold text-white">Kastamonu Üniversitesi Kurumsal Portalı</span>
+            </div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100 p-4 border-0">
-                <i class="bi bi-calendar-check display-4 text-danger mb-3"></i>
-                <h5 class="fw-bold mb-2">Hızlı ve Kolay Rezervasyon</h5>
-                <p class="text-muted">
-                    Uygun toplantı odalarını anında görüntüleyin,
-                    tarih ve saat seçerek saniyeler içinde
-                    rezervasyon işleminizi tamamlayın.
-                </p>
+            <h1 class="display-5 fw-bold mb-3">
+                Toplantı Salonu & Ajanda Entegrasyon Sistemi
+            </h1>
+
+            <p class="fs-5 text-white-50 mb-4 pe-lg-5">
+                Canlı senkronizasyonlu toplantı yönetimi, akıllı çakışma kontrolü ve
+                <strong>Google Calendar & Microsoft Outlook</strong> tam ajanda entegrasyonu.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-controller="Reservation" asp-action="Calendar" class="btn btn-light text-danger fw-bold px-4 py-2 rounded-pill shadow-sm">
+                    <i class="bi bi-calendar3 me-1"></i> Tüm Ajandayı & Takvimi Gör
+                </a>
+
+                <a asp-controller="Reservation" asp-action="Create" class="btn btn-danger fw-bold px-4 py-2 rounded-pill shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Yeni Toplantı Planla
+                </a>
+
+                <a asp-controller="Room" asp-action="Index" class="btn btn-outline-light px-4 py-2 rounded-pill">
+                    <i class="bi bi-door-open me-1"></i> Toplantı Salonları
+                </a>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100 p-4 border-0">
-                <i class="bi bi-clock-history display-4 text-danger mb-3"></i>
-                <h5 class="fw-bold mb-2">Gelişmiş Takvim Sistemi</h5>
-                <p class="text-muted">
-                    Günlük, haftalık ve aylık takvim görünümleri ile
-                    tüm rezervasyonları çakışmasız ve düzenli şekilde
-                    takip edin.
-                </p>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100 p-4 border-0">
-                <i class="bi bi-shield-lock display-4 text-danger mb-3"></i>
-                <h5 class="fw-bold mb-2">Yetkili ve Güvenli Yönetim</h5>
-                <p class="text-muted">
-                    Yönetici paneli sayesinde oda, kullanıcı ve
-                    rezervasyon işlemlerini rol bazlı,
-                    güvenli bir altyapı ile yönetin.
-                </p>
-            </div>
-        </div>
-
     </div>
-
-    <!-- ALT BİLGİ -->
-    <div class="text-center mt-5 text-secondary">
-        <p class="fs-6">
-            Bu sistem,
-            <strong>ASP.NET Core MVC</strong>,
-            <strong>Entity Framework Core</strong> ve
-            <strong>ASP.NET Identity</strong>
-            teknolojileri kullanılarak geliştirilmiştir.
-        </p>
-
-        <p class="text-muted">
-            Modern mimari, yüksek güvenlik ve ölçeklenebilir yapı
-            esas alınarak tasarlanmıştır.
-        </p>
-    </div>
-
 </div>
 
+<!-- ========================================== -->
+<!-- 📊 İSTATİSTİK SAYAÇLARI                     -->
+<!-- ========================================== -->
+<div class="row g-3 mb-5">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white border-start border-danger border-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-danger-subtle text-danger p-3 me-3">
+                    <i class="bi bi-door-open-fill fs-3"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.TotalRooms</h3>
+                    <div class="text-secondary small fw-medium">Toplantı Salonu</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white border-start border-dark border-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-dark-subtle text-dark p-3 me-3">
+                    <i class="bi bi-calendar-day-fill fs-3"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.TodayMeetingsCount</h3>
+                    <div class="text-secondary small fw-medium">Bugünkü Toplantılar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white border-start border-danger border-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-danger-subtle text-danger p-3 me-3">
+                    <i class="bi bi-calendar-check-fill fs-3"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.UpcomingMeetingsCount</h3>
+                    <div class="text-secondary small fw-medium">Yaklaşan Toplantı</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white border-start border-secondary border-4">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle bg-secondary-subtle text-secondary p-3 me-3">
+                    <i class="bi bi-person-check-fill fs-3"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.MyMeetingsCount</h3>
+                    <div class="text-secondary small fw-medium">Benim Toplantılarım</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 📅 GÜNÜN TOPLANTI AJANDASI (CANLI AKIŞ)    -->
+<!-- ========================================== -->
+<div class="row g-4 mb-5">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 rounded-4 h-100 bg-white">
+            <div class="card-header bg-white p-4 border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="fw-bold mb-0 text-dark d-flex align-items-center">
+                        <i class="bi bi-clock-history text-danger me-2"></i>
+                        Günün Toplantı Ajandası
+                    </h4>
+                    <p class="text-secondary small mb-0 mt-1">@DateTime.Today.ToString("dd MMMM yyyy, dddd") günü üniversitemizde planlanan oturumlar</p>
+                </div>
+                <a asp-controller="Reservation" asp-action="Calendar" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                    Tüm Ajandayı Gör <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="card-body p-4">
+                @if (Model.TodayAgenda == null || !Model.TodayAgenda.Any())
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-cup-hot display-4 d-block mb-3 text-secondary"></i>
+                        <h6 class="fw-bold text-dark">Bugün için planlanmış toplantı bulunmuyor</h6>
+                        <p class="small text-secondary mb-3">Salonlarımız bugün uygun durumdadır. Hemen yeni bir toplantı planlayabilirsiniz.</p>
+                        <a asp-controller="Reservation" asp-action="Create" class="btn btn-sm btn-danger rounded-pill px-3">
+                            <i class="bi bi-plus-circle me-1"></i> Yeni Toplantı Planla
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush gap-3">
+                        @foreach (var item in Model.TodayAgenda)
+                        {
+                            <div class="list-group-item border rounded-3 p-3 bg-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="text-center me-3 px-3 py-2 bg-white rounded-3 border border-danger-subtle">
+                                        <div class="fw-bold text-danger fs-5">@item.StartTime.ToString("HH:mm")</div>
+                                        <div class="text-muted small">@item.EndTime.ToString("HH:mm")</div>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <h6 class="fw-bold mb-0 text-dark">
+                                                <a asp-controller="Reservation" asp-action="Details" asp-route-id="@item.ReservationId" class="text-dark text-decoration-none">
+                                                    @item.Title
+                                                </a>
+                                            </h6>
+                                            @if (!string.IsNullOrEmpty(item.MeetingType))
+                                            {
+                                                <span class="badge bg-danger rounded-pill" style="font-size:0.65rem;">@item.MeetingType</span>
+                                            }
+                                        </div>
+                                        <div class="small text-secondary mt-1">
+                                            <i class="bi bi-door-open text-danger me-1"></i> @(item.Room?.Name ?? "Salon")
+                                            • <i class="bi bi-person me-1"></i> @(item.User?.FullName ?? "Akademisyen")
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a asp-controller="Reservation" asp-action="DownloadIcs" asp-route-id="@item.ReservationId" class="btn btn-sm btn-outline-secondary rounded-pill" title="Ajandama Ekle (.ics)">
+                                        <i class="bi bi-calendar-plus"></i> .ics
+                                    </a>
+                                    <a asp-controller="Reservation" asp-action="Details" asp-route-id="@item.ReservationId" class="btn btn-sm btn-danger rounded-pill px-3">
+                                        Detay
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- SAĞ BÖLÜM: AJANDA ENTEGRASYONU REHBERİ -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white">
+            <h5 class="fw-bold text-dark mb-3">
+                <i class="bi bi-lightning-charge-fill text-danger me-1"></i>
+                Ajanda Entegrasyonu
+            </h5>
+            <p class="text-secondary small mb-4">
+                Kastamonu Üniversitesi Toplantı Sistemi, tüm kişisel ve kurumsal takvimlerinizle senkronize çalışır.
+            </p>
+
+            <div class="d-flex flex-column gap-3 mb-4">
+                <div class="d-flex align-items-start">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google" style="width: 28px; margin-right: 12px; margin-top: 2px;" />
+                    <div>
+                        <div class="fw-bold text-dark small">Google Calendar Entegrasyonu</div>
+                        <div class="text-muted" style="font-size: 0.8rem;">Toplantı detayından tek tıkla Google Ajandanıza etkinlik oluşturabilirsiniz.</div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" alt="Outlook" style="width: 28px; margin-right: 12px; margin-top: 2px;" />
+                    <div>
+                        <div class="fw-bold text-dark small">Microsoft Outlook & 365</div>
+                        <div class="text-muted" style="font-size: 0.8rem;">Kurumsal e-posta ve masaüstü Outlook takviminize anında işlenir.</div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-broadcast text-danger fs-3 me-3"></i>
+                    <div>
+                        <div class="fw-bold text-dark small">Gerçek Zamanlı Senkron (SignalR)</div>
+                        <div class="text-muted" style="font-size: 0.8rem;">Takvim sayfasını yenilemeye gerek kalmadan yeni toplantılar anında ekranınızda güncellenir.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-auto d-grid gap-2">
+                <a asp-controller="Reservation" asp-action="Calendar" class="btn btn-dark rounded-pill py-2 small fw-semibold">
+                    <i class="bi bi-calendar3 me-1"></i> Tüm Ajandayı Aç
+                </a>
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <a asp-controller="Reservation" asp-action="ExportMyCalendarIcs" class="btn btn-outline-danger rounded-pill py-2 small fw-semibold">
+                        <i class="bi bi-cloud-arrow-down-fill me-1"></i> Kişisel Ajandamı İndir (.ics)
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 🏛️ ÖNE ÇIKAN TOPLANTI SALONLARI            -->
+<!-- ========================================== -->
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-building text-danger me-2"></i>
+                Üniversite Toplantı Salonları
+            </h4>
+            <p class="text-secondary small mb-0">Canlı müsaitlik durumu ile toplantı salonlarımız</p>
+        </div>
+        <a asp-controller="Room" asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            Tüm Salonları Gör <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="row g-4">
+        @if (Model.FeaturedRooms != null)
+        {
+            foreach (var room in Model.FeaturedRooms)
+            {
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 rounded-4 h-100 p-4 bg-white hover-card d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <!-- Canlı Durum Rozeti -->
+                            @if (room.IsCurrentlyOccupied)
+                            {
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 d-flex align-items-center">
+                                    <span class="live-pulse-dot pulse-red"></span>
+                                    <span>Toplantı Sürüyor (~@room.RemainingMinutes dk)</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 d-flex align-items-center">
+                                    <span class="live-pulse-dot pulse-green"></span>
+                                    <span>Şu An Müsait</span>
+                                </span>
+                            }
+
+                            <span class="badge bg-light text-dark rounded-pill px-3 py-2 border">
+                                <i class="bi bi-people-fill text-danger me-1"></i> @room.Capacity Kişi
+                            </span>
+                        </div>
+
+                        <h5 class="fw-bold text-dark mb-1">@room.Name</h5>
+                        <p class="text-secondary small mb-3">
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i> @room.Location
+                        </p>
+
+                        <div class="d-flex gap-2 mt-auto">
+                            <a asp-controller="Reservation" asp-action="Calendar" asp-route-roomId="@room.RoomId" class="btn btn-sm btn-outline-secondary rounded-pill flex-fill">
+                                <i class="bi bi-calendar3 me-1"></i> Ajandası
+                            </a>
+                            <a asp-controller="Reservation" asp-action="Create" asp-route-roomId="@room.RoomId" class="btn btn-sm btn-danger rounded-pill flex-fill fw-semibold">
+                                <i class="bi bi-plus me-1"></i> Rezerve Et
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

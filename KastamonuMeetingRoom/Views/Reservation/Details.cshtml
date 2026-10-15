@@ -1,0 +1,283 @@
+@model KastamonuMeetingRoom.Models.Reservation
+
+@{
+    ViewData["Title"] = "Toplantı Detayı - " + Model.Title;
+    var duration = Model.EndTime - Model.StartTime;
+    bool canEdit = ViewBag.CanEdit ?? false;
+    var currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Reservation/Details/{Model.ReservationId}";
+    var qrCodeUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={Uri.EscapeDataString(currentUrl)}";
+}
+
+<div class="container my-4">
+    <!-- Üst Gezinme / Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4 d-print-none">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-dark">Anasayfa</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Reservation" asp-action="Calendar" class="text-decoration-none text-danger">Ajanda & Takvim</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Toplantı Detayı</li>
+        </ol>
+    </nav>
+
+    <!-- Yazdırma Şablonu (Sadece print esnasında görünür resmi antet) -->
+    <div class="d-none d-print-block text-center mb-4">
+        <h3 class="fw-bold">KASTAMONU ÜNİVERSİTESİ</h3>
+        <h5 class="text-secondary">TOPLANTI ÇAĞRI VE GÜNDEM TUTANAĞI</h5>
+        <hr />
+    </div>
+
+    <div class="row g-4">
+        <!-- SOL SÜTUN: Toplantı & Salon Bilgileri -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4 bg-white">
+                <div class="card-header text-white p-4" style="background: linear-gradient(135deg, #111111 0%, #8E1C1C 50%, #B22525 100%);">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="d-flex gap-2 mb-2">
+                                <span class="badge bg-light text-danger fw-bold px-3 py-2 rounded-pill">
+                                    <i class="bi bi-clock-history me-1"></i> @duration.TotalMinutes dakika süreli
+                                </span>
+                                @if (!string.IsNullOrEmpty(Model.MeetingType))
+                                {
+                                    <span class="badge bg-dark text-white border border-light px-3 py-2 rounded-pill">
+                                        @Model.MeetingType
+                                    </span>
+                                }
+                            </div>
+                            <h2 class="fw-bold text-white mb-1">@Model.Title</h2>
+                            <p class="text-white-50 mb-0">
+                                <i class="bi bi-calendar3 me-1"></i> @Model.StartTime.ToString("dd MMMM yyyy, dddd")
+                            </p>
+                        </div>
+                        <div>
+                            @if (Model.IsCancelled)
+                            {
+                                <span class="badge bg-secondary fs-6 px-3 py-2 rounded-pill">
+                                    <i class="bi bi-x-circle me-1"></i> İptal Edildi
+                                </span>
+                            }
+                            else if (DateTime.Now > Model.EndTime)
+                            {
+                                <span class="badge bg-dark fs-6 px-3 py-2 rounded-pill border border-light">
+                                    <i class="bi bi-check-all me-1"></i> Tamamlandı
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-white text-danger fs-6 px-3 py-2 rounded-pill fw-bold">
+                                    <i class="bi bi-check-circle me-1"></i> Onaylı / Planlandı
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Zamanlama & Konum Bilgileri -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 bg-light border border-danger-subtle">
+                                <div class="text-muted small fw-bold text-uppercase">
+                                    <i class="bi bi-door-open-fill text-danger me-1"></i> Toplantı Salonu
+                                </div>
+                                <h5 class="fw-bold text-dark mt-1 mb-0">@(Model.Room?.Name ?? "Salon Belirtilmedi")</h5>
+                                <div class="text-secondary small mt-1">
+                                    <i class="bi bi-geo-alt text-danger me-1"></i> @(Model.Room?.Location ?? "Kampüs") •
+                                    <i class="bi bi-people me-1"></i> @(Model.Room?.Capacity ?? 0) Kişilik
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 bg-light border">
+                                <div class="text-muted small fw-bold text-uppercase">
+                                    <i class="bi bi-clock-fill text-danger me-1"></i> Saat Aralığı
+                                </div>
+                                <h5 class="fw-bold text-dark mt-1 mb-0">
+                                    @Model.StartTime.ToString("HH:mm") — @Model.EndTime.ToString("HH:mm")
+                                </h5>
+                                <div class="text-secondary small mt-1">
+                                    Tarih: @Model.StartTime.ToString("dd.MM.yyyy")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gündem / Açıklama -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold text-dark mb-2">
+                            <i class="bi bi-card-text text-danger me-2"></i> Toplantı Gündemi ve Açıklama
+                        </h5>
+                        <div class="p-3 rounded-3 bg-light border" style="min-height: 100px; white-space: pre-line;">
+                            @(string.IsNullOrWhiteSpace(Model.Description) ? "Bu toplantı için özel bir gündem maddesi girilmemiştir." : Model.Description)
+                        </div>
+                    </div>
+
+                    <!-- Katılımcılar -->
+                    @if (!string.IsNullOrWhiteSpace(Model.Attendees))
+                    {
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark mb-2">
+                                <i class="bi bi-people-fill text-danger me-2"></i> Katılımcı Listesi:
+                            </h6>
+                            <div class="p-3 rounded-3 bg-light border">
+                                @foreach (var att in Model.Attendees.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    <span class="badge bg-white text-dark border px-2 py-1 me-1 mb-1">
+                                        <i class="bi bi-person me-1 text-danger"></i> @att.Trim()
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Düzenleyen Kişi -->
+                    <div class="d-flex align-items-center p-3 rounded-3 border bg-light">
+                        <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-size: 1.3rem;">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Toplantıyı Düzenleyen:</div>
+                            <div class="fw-bold text-dark">@(Model.User?.FullName ?? "Kastamonu Üniversitesi Yetkilisi")</div>
+                            <div class="text-secondary small">@(Model.User?.Email ?? "-")</div>
+                        </div>
+                        <div class="ms-auto text-muted small text-end d-none d-sm-block">
+                            Kayıt Tarihi:<br />
+                            @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                        </div>
+                    </div>
+
+                    <!-- Yazdırma İçin Katılımcı İmza Çizelgesi (Sadece print esnasında) -->
+                    <div class="d-none d-print-block mt-5">
+                        <h6 class="fw-bold mb-3">KATILIMCI LİSTESİ VE İMZALARI</h6>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Adı Soyadı</th>
+                                    <th>Unvanı / Bölümü</th>
+                                    <th style="width: 150px;">İmza</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int i = 1; i <= 8; i++)
+                                {
+                                    <tr>
+                                        <td>@i</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="height: 35px;"></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white p-3 d-flex justify-content-between align-items-center d-print-none flex-wrap gap-2 border-top">
+                    <a asp-action="Calendar" class="btn btn-outline-secondary rounded-pill">
+                        <i class="bi bi-arrow-left me-1"></i> Ajandaya Dön
+                    </a>
+
+                    <div class="d-flex gap-2">
+                        <button onclick="window.print()" class="btn btn-dark rounded-pill">
+                            <i class="bi bi-printer me-1"></i> Yazdır / Tutanak
+                        </button>
+
+                        @if (canEdit && !Model.IsCancelled)
+                        {
+                            <a asp-action="Edit" asp-route-id="@Model.ReservationId" class="btn btn-outline-primary rounded-pill">
+                                <i class="bi bi-pencil-square me-1"></i> Düzenle
+                            </a>
+
+                            <a asp-action="Cancel" asp-route-id="@Model.ReservationId" class="btn btn-outline-danger rounded-pill" onclick="return confirm('Bu toplantı rezervasyonunu iptal etmek istediğinize emin misiniz?');">
+                                <i class="bi bi-x-circle me-1"></i> İptal Et
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAĞ SÜTUN: AJANDA ENTEGRASYONLARI & QR KOD -->
+        <div class="col-lg-4 d-print-none">
+            <!-- Ajandaya Ekle Kartı -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4 bg-white">
+                <div class="card-header bg-white p-3 border-bottom border-danger-subtle">
+                    <h5 class="fw-bold mb-0 text-danger">
+                        <i class="bi bi-calendar2-plus me-2"></i> Ajanda Entegrasyonu
+                    </h5>
+                </div>
+                <div class="card-body p-3">
+                    <p class="text-secondary small mb-3">
+                        Bu toplantıyı tek tıkla kullandığınız takvim veya ajanda uygulamasına ekleyin:
+                    </p>
+
+                    <div class="d-grid gap-2">
+                        <!-- Google Calendar -->
+                        <a href="@ViewBag.GoogleCalendarUrl" target="_blank" class="btn btn-light border d-flex align-items-center justify-content-start p-2 rounded-3 text-start hover-shadow">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google Calendar" style="width: 24px; height: 24px; margin-right: 12px;" />
+                            <div>
+                                <div class="fw-bold text-dark">Google Takvim'e Ekle</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Web üzerinden doğrudan ajandaya kaydet</div>
+                            </div>
+                        </a>
+
+                        <!-- Outlook Live / 365 -->
+                        <a href="@ViewBag.OutlookCalendarUrl" target="_blank" class="btn btn-light border d-flex align-items-center justify-content-start p-2 rounded-3 text-start hover-shadow">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" alt="Outlook" style="width: 24px; height: 24px; margin-right: 12px;" />
+                            <div>
+                                <div class="fw-bold text-dark">Outlook Takvim'e Ekle</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Microsoft 365 / Outlook Web ajandası</div>
+                            </div>
+                        </a>
+
+                        <!-- iCalendar (.ics) İndir -->
+                        <a asp-action="DownloadIcs" asp-route-id="@Model.ReservationId" class="btn btn-outline-danger d-flex align-items-center justify-content-start p-2 rounded-3 text-start">
+                            <i class="bi bi-file-earmark-arrow-down-fill text-danger fs-4 me-3"></i>
+                            <div>
+                                <div class="fw-bold text-dark">iCalendar (.ics) Dosyası İndir</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Apple Calendar, Outlook Desktop, Android / iOS</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toplantı QR Kodu -->
+            <div class="card shadow-sm border-0 rounded-4 mb-4 bg-white text-center p-3">
+                <h6 class="fw-bold text-dark mb-2"><i class="bi bi-qr-code-scan text-danger me-1"></i> Mobil Toplantı QR Kodu</h6>
+                <div class="p-2 bg-light rounded-3 border d-inline-block mx-auto mb-2">
+                    <img src="@qrCodeUrl" alt="QR Kod" style="width: 130px; height: 130px;" />
+                </div>
+                <small class="text-secondary">Katılımcıların telefonlarıyla okutarak toplantı bilgilerine anında erişmesini sağlayabilirsiniz.</small>
+            </div>
+
+            <!-- Salon Hakkında -->
+            @if (Model.Room != null)
+            {
+                <div class="card shadow-sm border-0 rounded-4 bg-white">
+                    <div class="card-header bg-white p-3 border-bottom">
+                        <h6 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-building me-1 text-danger"></i> Salon Bilgisi
+                        </h6>
+                    </div>
+                    <div class="card-body p-3">
+                        <ul class="list-unstyled mb-3 small">
+                            <li class="mb-2"><strong>Salon:</strong> @Model.Room.Name</li>
+                            <li class="mb-2"><strong>Konum:</strong> @Model.Room.Location</li>
+                            <li class="mb-2"><strong>Kapasite:</strong> @Model.Room.Capacity Kişi</li>
+                        </ul>
+                        <div class="d-grid gap-2">
+                            <a asp-action="Calendar" asp-route-roomId="@Model.Room.RoomId" class="btn btn-sm btn-outline-secondary rounded-pill">
+                                <i class="bi bi-calendar-range me-1"></i> Salon Ajandası
+                            </a>
+                            <a asp-controller="Room" asp-action="DoorDisplay" asp-route-id="@Model.Room.RoomId" target="_blank" class="btn btn-sm btn-dark rounded-pill">
+                                <i class="bi bi-tablet me-1"></i> Salon Kapı Ekranı (Kiosk)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

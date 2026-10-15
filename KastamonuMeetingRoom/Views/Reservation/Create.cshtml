@@ -1,97 +1,151 @@
-﻿@model KastamonuMeetingRoom.Models.Reservation
+@model KastamonuMeetingRoom.Models.Reservation
 
-<div class="row justify-content-center">
-    <div class="col-md-6">
+@{
+    ViewData["Title"] = "Yeni Toplantı Rezervasyonu - Kastamonu Üniversitesi";
+}
 
-        <div class="card shadow-lg border-0">
-          <div class="card-header reservation-header">
-    <h4 class="mb-0">
-        <i class="bi bi-calendar-plus"></i> Yeni Rezervasyon Oluştur
-    </h4>
-</div>
-
-
-            <div class="card-body">
-
-                <form method="post">
-                    @Html.AntiForgeryToken()
-
-                    <!-- Oda seçimi -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">
-                            <i class="bi bi-door-open"></i> Oda Seç
-                        </label>
-                        <select asp-for="RoomId" class="form-select">
-                            @foreach (var room in ViewBag.Rooms)
-                            {
-                                    <option value="@room.RoomId">@room.Name (@room.Capacity kişi)</option>
-                            }
-                        </select>
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+                <div class="card-header text-white p-4" style="background: linear-gradient(135deg, #111111 0%, #8E1C1C 60%, #B22525 100%);">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white bg-opacity-20 p-3 me-3 text-white">
+                            <i class="bi bi-calendar-plus-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-1 text-white">Yeni Toplantı Rezervasyonu</h4>
+                            <p class="mb-0 text-white-50 small">
+                                Üniversitemiz salonlarında planlı, güvenli ve ajanda entegrasyonlu toplantı kaydı oluşturun.
+                            </p>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- 📌 SADECE ADMIN GÖRÜR: Kullanıcı seçimi -->
-                    @if (User.IsInRole("Admin"))
-                    {
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">
-                                    <i class="bi bi-people"></i> Kullanıcı Seç (Admin Yetkisi)
-                                </label>
-                                <select asp-for="UserId" class="form-select">
-                                @foreach (var u in ViewBag.Users)
+                <div class="card-body p-4">
+                    <form method="post" asp-action="Create">
+                        @Html.AntiForgeryToken()
+
+                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+                        {
+                            <div class="alert alert-danger rounded-3 mb-4">
+                                <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> Lütfen bilgileri kontrol edin:</h6>
+                                <div asp-validation-summary="All" class="small mb-0"></div>
+                            </div>
+                        }
+
+                        <!-- Salon Seçimi -->
+                        <div class="mb-3">
+                            <label asp-for="RoomId" class="form-label fw-bold text-dark">
+                                <i class="bi bi-door-open-fill text-danger me-1"></i> Toplantı Salonu Seçin <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="RoomId" class="form-select rounded-3 py-2">
+                                <option value="">-- Lütfen bir toplantı salonu seçiniz --</option>
+                                @if (ViewBag.Rooms != null)
                                 {
-                                            <option value="@u.Id">@u.FullName (@u.Email)</option>
+                                    foreach (var room in (List<KastamonuMeetingRoom.Models.Room>)ViewBag.Rooms)
+                                    {
+                                        <option value="@room.RoomId">@room.Name (@room.Location - Kapasite: @room.Capacity Kişi)</option>
+                                    }
                                 }
+                            </select>
+                            <span asp-validation-for="RoomId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Toplantı Türü -->
+                        <div class="mb-3">
+                            <label asp-for="MeetingType" class="form-label fw-bold text-dark">
+                                <i class="bi bi-tag-fill text-danger me-1"></i> Toplantı Türü <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="MeetingType" class="form-select rounded-3 py-2">
+                                <option value="Akademik Kurul Toplantısı">🎓 Akademik Kurul Toplantısı</option>
+                                <option value="Tez Savunması (Y.Lisans / Doktora)">📜 Tez Savunması (Y.Lisans / Doktora)</option>
+                                <option value="Senato Toplantısı">🏛️ Senato Toplantısı</option>
+                                <option value="BAP / Proje Toplantısı">🔬 BAP / Bilimsel Araştırma Proje Toplantısı</option>
+                                <option value="İdari Koordinasyon Toplantısı">💼 İdari Koordinasyon Toplantısı</option>
+                                <option value="Konferans & Seminer">🎤 Konferans & Seminer</option>
+                                <option value="Öğrenci Kulübü Etkinliği">👥 Öğrenci Kulübü Etkinliği</option>
+                            </select>
+                        </div>
+
+                        <!-- Admin için Kullanıcı Seçimi -->
+                        @if (User.IsInRole("Admin") && ViewBag.Users != null)
+                        {
+                            <div class="mb-3 p-3 rounded-3 bg-light border border-dark-subtle">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="bi bi-person-badge-fill text-danger me-1"></i> Toplantı Sahibi (Yönetici Yetkisi)
+                                </label>
+                                <select asp-for="UserId" class="form-select rounded-3 py-2">
+                                    @foreach (var u in (List<KastamonuMeetingRoom.Models.ApplicationUser>)ViewBag.Users)
+                                    {
+                                        <option value="@u.Id">@u.FullName (@u.Email)</option>
+                                    }
                                 </select>
                             </div>
-                    }
+                        }
 
-                    <!-- Başlık -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">
-                            <i class="bi bi-pencil-square"></i> Başlık
-                        </label>
-                        <input asp-for="Title" class="form-control" placeholder="Toplantı, sunum, görüşme..." />
-                    </div>
-
-                    <!-- Açıklama -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">
-                            <i class="bi bi-chat-left-dots"></i> Açıklama (İsteğe bağlı)
-                        </label>
-                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                    </div>
-
-                    <!-- Tarih ve Saat -->
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="bi bi-clock"></i> Başlangıç
+                        <!-- Toplantı Başlığı -->
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold text-dark">
+                                <i class="bi bi-fonts text-danger me-1"></i> Toplantı Başlığı / Konusu <span class="text-danger">*</span>
                             </label>
-                            <input asp-for="StartTime" type="datetime-local" class="form-control" />
+                            <input asp-for="Title" class="form-control rounded-3 py-2" placeholder="Örn: Bilgisayar Müh. Bölüm Akademik Kurulu..." />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">
-                                <i class="bi bi-clock-fill"></i> Bitiş
+                        <!-- Katılımcılar -->
+                        <div class="mb-3">
+                            <label asp-for="Attendees" class="form-label fw-bold text-dark">
+                                <i class="bi bi-people-fill text-danger me-1"></i> Katılımcılar (E-Posta veya İsimler)
                             </label>
-                            <input asp-for="EndTime" type="datetime-local" class="form-control" />
+                            <input asp-for="Attendees" class="form-control rounded-3 py-2" placeholder="Örn: ahmet@kastamonu.edu.tr, mehmet@kastamonu.edu.tr..." />
+                            <div class="form-text small">Toplantıya davet etmek istediğiniz akademisyen veya personelleri virgülle ayırarak yazabilirsiniz.</div>
                         </div>
-                    </div>
 
-                    <!-- Hata Mesajı -->
-                    <div class="text-danger">
-                        @Html.ValidationSummary()
-                    </div>
+                        <!-- Toplantı Gündemi & Açıklama -->
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold text-dark">
+                                <i class="bi bi-card-checklist text-danger me-1"></i> Toplantı Gündemi ve Açıklaması
+                            </label>
+                            <textarea asp-for="Description" class="form-control rounded-3" rows="3" placeholder="Gündem maddeleri ve görüşülecek konular..."></textarea>
+                        </div>
 
-                   <button class="btn btn-reserve w-100 mt-3">
+                        <!-- Başlangıç ve Bitiş Saatleri -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="StartTime" class="form-label fw-bold text-dark">
+                                    <i class="bi bi-clock-fill text-danger me-1"></i> Başlangıç Zamanı <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="StartTime" type="datetime-local" class="form-control rounded-3 py-2" />
+                                <span asp-validation-for="StartTime" class="text-danger small"></span>
+                            </div>
 
-                        <i class="bi bi-check2-circle"></i> Rezervasyonu Oluştur
-                    </button>
+                            <div class="col-md-6">
+                                <label asp-for="EndTime" class="form-label fw-bold text-dark">
+                                    <i class="bi bi-clock-history text-dark me-1"></i> Bitiş Zamanı <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="EndTime" type="datetime-local" class="form-control rounded-3 py-2" />
+                                <span asp-validation-for="EndTime" class="text-danger small"></span>
+                            </div>
+                        </div>
 
-                </form>
+                        <div class="alert alert-light border small text-muted mb-4">
+                            <i class="bi bi-shield-check text-danger me-1"></i>
+                            <strong>Akıllı Çakışma Önleme:</strong> Kaydet butonuna tıkladığınızda seçtiğiniz saat aralığı kontrol edilecek ve çakışma yoksa anında tüm üniversite ajandasına işlenecektir.
+                        </div>
 
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Calendar" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="bi bi-arrow-left me-1"></i> Takvime Dön
+                            </a>
+
+                            <button type="submit" class="btn btn-danger rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                <i class="bi bi-check2-circle me-1"></i> Rezervasyonu Onayla ve Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-
     </div>
 </div>

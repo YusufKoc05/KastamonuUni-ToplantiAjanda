@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,14 +8,14 @@ namespace KastamonuMeetingRoom.Models
     {
         public int ReservationId { get; set; }
 
-        // 📌 Oda Id (formdaki RoomId ile eşleşir)
+        // 📌 Oda Id
         [Required(ErrorMessage = "Oda seçimi zorunludur.")]
         public int RoomId { get; set; }
 
         [ForeignKey("RoomId")]
         public Room? Room { get; set; }
 
-        // 📌 Kullanıcı Id — Normal kullanıcıda formdan gelmiyor, biz atıyoruz
+        // 📌 Kullanıcı Id
         public string? UserId { get; set; }
 
         [ForeignKey("UserId")]
@@ -26,7 +26,14 @@ namespace KastamonuMeetingRoom.Models
         [StringLength(100)]
         public string Title { get; set; } = string.Empty;
 
-        // 📌 Açıklama (opsiyonel)
+        // 🏷️ Toplantı Türü (Örn: Akademik Kurul, Tez Savunması, Senato, BAP Proje...)
+        [StringLength(50)]
+        public string? MeetingType { get; set; } = "Genel Toplantı";
+
+        // 👥 Katılımcı Listesi (E-posta veya İsimler)
+        public string? Attendees { get; set; }
+
+        // 📌 Açıklama / Gündem
         public string? Description { get; set; }
 
         // 📌 Başlangıç – Bitiş saatleri

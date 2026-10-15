@@ -1,93 +1,167 @@
-﻿@model List<KastamonuMeetingRoom.Models.Reservation>
+@model List<KastamonuMeetingRoom.Models.Reservation>
 
-<h2 class="mb-3 fw-bold">Rezervasyonlar</h2>
+@{
+    ViewData["Title"] = "Toplantı Rezervasyonlarım & Ajanda";
+}
 
-<table class="table table-hover table-striped">
-    <thead class="table-primary">
-        <tr>
-            <th>Oda</th>
-            <th>Başlık</th>
-            <th>Başlangıç</th>
-            <th>Bitiş</th>
-            <th>Kullanıcı</th>
-            <th>Durum</th>
-            <th>İşlemler</th>
-        </tr>
-    </thead>
+<div class="container-fluid px-0">
+    <!-- Üst Başlık & Aksiyon Alanı -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-4 rounded-4 shadow-sm border border-danger-subtle">
+        <div>
+            <h2 class="fw-bold mb-1 text-dark d-flex align-items-center">
+                <i class="bi bi-calendar-check-fill text-danger me-2"></i>
+                Toplantı Rezervasyonları
+            </h2>
+            <p class="text-secondary small mb-0">
+                Planlanmış toplantılarınızı yönetin, gündem detaylarını inceleyin ve ajandanıza aktarın.
+            </p>
+        </div>
 
-    <tbody>
-        @foreach (var item in Model)
-        {
-            if (item.IsCancelled)
-            {
-                        <tr class="text-muted">
-                            <td>
-                                <div class="reservation-room-header">
-                                    <s>@item.Room.Name</s>
-                                </div>
-                            </td>
+        <div class="d-flex flex-wrap gap-2">
+            <!-- Ajandamı İndir (.ics) -->
+            <a asp-action="ExportMyCalendarIcs" class="btn btn-outline-danger rounded-pill px-3 shadow-sm">
+                <i class="bi bi-cloud-arrow-down-fill me-1"></i> Tüm Ajandamı İndir (.ics)
+            </a>
 
-                            <td><s>@item.Title</s></td>
-                            <td><s>@item.StartTime</s></td>
-                            <td><s>@item.EndTime</s></td>
+            <!-- Takvime Git -->
+            <a asp-action="Calendar" class="btn btn-dark rounded-pill px-3 shadow-sm">
+                <i class="bi bi-calendar3 me-1"></i> Takvim & Ajanda Görünümü
+            </a>
 
-                            <td>@item.User?.FullName</td>
+            <!-- Yeni Rezervasyon -->
+            <a asp-action="Create" class="btn btn-danger rounded-pill px-4 shadow-sm fw-semibold">
+                <i class="bi bi-plus-circle me-1"></i> Yeni Toplantı Ekle
+            </a>
+        </div>
+    </div>
 
-                            <td>
-                                <span class="badge bg-secondary">❌ İptal Edildi</span>
-                            </td>
-
-                            <td>
-                        @if (User.IsInRole("Admin"))
-                        {
-                                        <a href="/Reservation/Delete/@item.ReservationId" class="btn btn-danger btn-sm">
-                                            Sil
-                                        </a>
-                        }
-                            </td>
-                        </tr>
-            }
-            else
-            {
+    <!-- Rezervasyon Tablosu / Listesi -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden bg-white">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background-color: #18181b; color: #ffffff;">
+                    <tr class="small text-uppercase">
+                        <th class="ps-4 py-3 text-white">Toplantı Başlığı & Salon</th>
+                        <th class="text-white">Tarih & Saat Aralığı</th>
+                        <th class="text-white">Düzenleyen</th>
+                        <th class="text-white">Durum</th>
+                        <th class="text-end pe-4 text-white">Ajanda & İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
                         <tr>
-                            <td>
-                                <div class="reservation-room-header">
-                            @item.Room.Name
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-calendar-x display-4 d-block mb-3 text-danger"></i>
+                                Henüz kayıtlı bir toplantı rezervasyonu bulunmuyor.
+                                <div class="mt-3">
+                                    <a asp-action="Create" class="btn btn-sm btn-danger rounded-pill px-4">
+                                        İlk Toplantıyı Planla
+                                    </a>
                                 </div>
                             </td>
-
-                            <td>@item.Title</td>
-                            <td>@item.StartTime</td>
-                            <td>@item.EndTime</td>
-
-                            <td>@item.User?.FullName</td>
-
-                            <td>
-                                <span class="badge bg-success">Aktif</span>
-                            </td>
-
-                            <td>
-                                <a href="/Reservation/Edit/@item.ReservationId" class="btn btn-edit btn-sm">
-                                    Düzenle
-                                </a>
-
-                                <a href="/Reservation/Cancel/@item.ReservationId" class="btn btn-secondary btn-sm">
-                                    İptal
-                                </a>
-
-                        @if (User.IsInRole("Admin"))
-                        {
-                                        <a href="/Reservation/Delete/@item.ReservationId" class="btn btn-danger btn-sm">
-                                            Sil
-                                        </a>
-                        }
-                            </td>
                         </tr>
-            }
-        }
-    </tbody>
-</table>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            var isPast = DateTime.Now > item.EndTime;
+                            var rowClass = item.IsCancelled ? "text-muted bg-light bg-opacity-50" : "";
 
-<a href="/Reservation/Create" class="btn btn-reserve mt-3">
-    Yeni Rezervasyon Ekle
-</a>
+                            <tr class="@rowClass">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 @(item.IsCancelled ? "bg-secondary text-white" : "bg-danger-subtle text-danger")" style="width: 40px; height: 40px; min-width: 40px;">
+                                            <i class="bi @(item.IsCancelled ? "bi-x-lg" : "bi-door-closed") fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <a asp-action="Details" asp-route-id="@item.ReservationId" class="fw-bold text-decoration-none @(item.IsCancelled ? "text-muted text-decoration-line-through" : "text-dark")">
+                                                @item.Title
+                                            </a>
+                                            <div class="small text-secondary">
+                                                <i class="bi bi-geo-alt me-1 text-danger"></i> @(item.Room?.Name ?? "Oda Belirtilmedi")
+                                                @if (!string.IsNullOrEmpty(item.Room?.Location))
+                                                {
+                                                    <span>(@item.Room.Location)</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="fw-semibold @(item.IsCancelled ? "text-muted text-decoration-line-through" : "text-dark")">
+                                        @item.StartTime.ToString("dd.MM.yyyy")
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="bi bi-clock text-danger me-1"></i> @item.StartTime.ToString("HH:mm") — @item.EndTime.ToString("HH:mm")
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="fw-medium text-dark">@(item.User?.FullName ?? "Belirtilmedi")</div>
+                                    <div class="small text-muted">@(item.User?.Email ?? "-")</div>
+                                </td>
+
+                                <td>
+                                    @if (item.IsCancelled)
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-1">
+                                            <i class="bi bi-x-circle me-1"></i> İptal Edildi
+                                        </span>
+                                    }
+                                    else if (isPast)
+                                    {
+                                        <span class="badge bg-dark-subtle text-dark rounded-pill px-3 py-1">
+                                            <i class="bi bi-check-all me-1"></i> Tamamlandı
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 fw-bold">
+                                            <i class="bi bi-check-circle me-1"></i> Aktif / Planlandı
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm">
+                                        <!-- Detay & Ajanda Sayfası -->
+                                        <a asp-action="Details" asp-route-id="@item.ReservationId" class="btn btn-outline-danger" title="Toplantı Detayı ve Gündem">
+                                            <i class="bi bi-eye"></i> Detay
+                                        </a>
+
+                                        <!-- .ics İndir -->
+                                        <a asp-action="DownloadIcs" asp-route-id="@item.ReservationId" class="btn btn-outline-secondary" title="Ajandama Ekle (.ics)">
+                                            <i class="bi bi-calendar-plus"></i> .ics
+                                        </a>
+
+                                        @if (!item.IsCancelled && !isPast)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.ReservationId" class="btn btn-outline-dark" title="Düzenle">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+                                            <a asp-action="Cancel" asp-route-id="@item.ReservationId" class="btn btn-outline-warning" title="İptal Et" onclick="return confirm('Bu toplantıyı iptal etmek istediğinize emin misiniz?');">
+                                                <i class="bi bi-slash-circle"></i>
+                                            </a>
+                                        }
+
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.ReservationId" class="btn btn-outline-danger" title="Kalıcı Olarak Sil" onclick="return confirm('Bu rezervasyon kaydını kalıcı olarak silmek istiyor musunuz?');">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

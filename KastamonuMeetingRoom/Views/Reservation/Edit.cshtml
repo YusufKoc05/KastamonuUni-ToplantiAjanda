@@ -1,26 +1,108 @@
-﻿@model KastamonuMeetingRoom.Models.Reservation
+@model KastamonuMeetingRoom.Models.Reservation
 
-<h2>Rezervasyonu Düzenle</h2>
+@{
+    ViewData["Title"] = "Toplantı Rezervasyonunu Düzenle";
+}
 
-<form method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="ReservationId" />
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header text-white p-4" style="background: linear-gradient(135deg, #111111 0%, #8E1C1C 60%, #B22525 100%);">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-white bg-opacity-20 p-3 me-3 text-white">
+                            <i class="bi bi-pencil-square fs-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-1 text-white">Toplantı Rezervasyonunu Güncelle</h4>
+                            <p class="mb-0 text-white-50 small">
+                                Toplantı salonu, saat aralığı veya gündem bilgilerini güncelleyin.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-    <label>Oda</label>
-    <select asp-for="RoomId" class="form-control"
-            asp-items="@(new SelectList(ViewBag.Rooms, "RoomId", "Name"))"></select>
+                <div class="card-body p-4">
+                    <form method="post" asp-action="Edit">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ReservationId" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        <input type="hidden" asp-for="IsCancelled" />
 
-    <label>Başlık</label>
-    <input asp-for="Title" class="form-control" />
+                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+                        {
+                            <div class="alert alert-danger rounded-3 mb-4">
+                                <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> Lütfen bilgileri kontrol edin:</h6>
+                                <div asp-validation-summary="All" class="small mb-0"></div>
+                            </div>
+                        }
 
-    <label>Açıklama</label>
-    <textarea asp-for="Description" class="form-control"></textarea>
+                        <!-- Salon Seçimi -->
+                        <div class="mb-3">
+                            <label asp-for="RoomId" class="form-label fw-bold text-dark">
+                                <i class="bi bi-door-open-fill text-danger me-1"></i> Toplantı Salonu <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="RoomId" class="form-select rounded-3 py-2">
+                                @if (ViewBag.Rooms != null)
+                                {
+                                    foreach (var room in (List<KastamonuMeetingRoom.Models.Room>)ViewBag.Rooms)
+                                    {
+                                        <option value="@room.RoomId">@room.Name (@room.Location - Kapasite: @room.Capacity Kişi)</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="RoomId" class="text-danger small"></span>
+                        </div>
 
-    <label>Başlangıç</label>
-    <input asp-for="StartTime" type="datetime-local" class="form-control" />
+                        <!-- Toplantı Başlığı -->
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold text-dark">
+                                <i class="bi bi-fonts text-danger me-1"></i> Toplantı Başlığı / Konusu <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Title" class="form-control rounded-3 py-2" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
 
-    <label>Bitiş</label>
-    <input asp-for="EndTime" type="datetime-local" class="form-control" />
+                        <!-- Toplantı Gündemi & Açıklama -->
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold text-dark">
+                                <i class="bi bi-card-checklist text-danger me-1"></i> Toplantı Gündemi ve Açıklaması
+                            </label>
+                            <textarea asp-for="Description" class="form-control rounded-3" rows="4"></textarea>
+                        </div>
 
-    <button class="btn btn-primary mt-3">Güncelle</button>
-</form>
+                        <!-- Başlangıç ve Bitiş Saatleri -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label asp-for="StartTime" class="form-label fw-bold text-dark">
+                                    <i class="bi bi-clock-fill text-danger me-1"></i> Başlangıç Zamanı <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="StartTime" type="datetime-local" class="form-control rounded-3 py-2" />
+                                <span asp-validation-for="StartTime" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="EndTime" class="form-label fw-bold text-dark">
+                                    <i class="bi bi-clock-history text-dark me-1"></i> Bitiş Zamanı <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="EndTime" type="datetime-local" class="form-control rounded-3 py-2" />
+                                <span asp-validation-for="EndTime" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Eylem Butonları -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Details" asp-route-id="@Model.ReservationId" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="bi bi-arrow-left me-1"></i> İptal / Geri Dön
+                            </a>
+
+                            <button type="submit" class="btn btn-danger rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                <i class="bi bi-check2-circle me-1"></i> Değişiklikleri Kaydet
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
